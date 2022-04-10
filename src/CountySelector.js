@@ -7,7 +7,7 @@ function CountySelector({deadlineData, setSelectedCounties}) {
     const [selectedCountyIndexes, setSelectedCountyIndexes] = useState([]);
 
     const stateRadioButtons = deadlineData.map( 
-        (state, index) => ( <Radio value={index} key={state.name}>{state.name}</Radio> 
+        (state, index) => ( <Radio.Button size='large' value={index} key={state.name}>{state.name}</Radio.Button> 
         ));
 
     const countyOptions = deadlineData[selectedStateIndex].counties.map( 
@@ -22,23 +22,30 @@ function CountySelector({deadlineData, setSelectedCounties}) {
 
     return(
         <div>
-            <Radio.Group 
-                defaultValue={selectedStateIndex}
-                onChange={e=>setSelectedStateIndex(e.target.value)}>
-                <Space direction="vertical">
-                    {stateRadioButtons}
-                </Space>
-            </Radio.Group>
-            <br/>
-            <Select
+            <label>
+                <div class="controlLabel">State:</div>
+                <Radio.Group className="radioGroup" 
+                    defaultValue={selectedStateIndex}
+                    onChange={e=>setSelectedStateIndex(e.target.value)}>
+                    {/* <Space direction="vertical"> */}
+                        {stateRadioButtons}
+                    {/* </Space> */}
+                </Radio.Group>
+            </label>
+
+            <label>
+            <div class="controlLabel">Counties:</div>
+            <Select className="select horizontalControl"
                 mode='multiple'
                 allowClear
                 placeholder="Select Counties"
                 showSearch
                 value={selectedCountyIndexes}
+                size='large'
                 onChange={setSelectedCountyIndexes}>
                 {countyOptions}
             </Select>
+            </label>
         </div>
         ) 
     }

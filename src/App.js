@@ -13,26 +13,28 @@ function App() {
   const displayData = selectedDate ? selectedCounties.map( county => ({...county, deadlineInfo:calcDeadline(county, selectedDate) }) ) : [];
 
   const displayItems = displayData.map(county => 
-    <div className="displayItem" key={county.name}>
+    <div className="resultItem" key={county.name}>
       <div className="countyNameLabel">{county.name}</div>
       <div className="deadlineLabel">{county.deadlineInfo.submissionDate.format("ddd MMM Do")} @ {county.deadlineInfo.submissionTime}</div>
     </div>)
 
   return (
-    <div className="App">
-      <header className="App-header">
-
-        <div className="inputPane">
-          <CountySelector deadlineData={deadlineData} setSelectedCounties={setSelectedCounties}/>
-          <DatePicker onChange={setSelectedDate}/>
-        </div>
-        <div className="displayPane">
-          {displayItems}
-        </div>
-
-      </header>
-    
-    </div>
+      <main>
+      <div className="inputPane">
+      <header className="App-header"><h1>Priscilla's Amazing Publication Deadline Calculator</h1></header>
+      <div className="input">
+        <CountySelector className="countySelector" deadlineData={deadlineData} setSelectedCounties={setSelectedCounties}/>
+        
+      <label>
+        <div class="controlLabel">Court deadline:</div>
+        <DatePicker size='large' className="datePicker horizontalControl" onChange={setSelectedDate}/>
+      </label>
+      </div>
+      </div>
+      <div className="displayPane">
+        {displayItems || <div class="placeholderNote">Select some inputs yo</div>}
+      </div>
+    </main>
   );
 }
 
