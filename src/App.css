@@ -1,7 +1,8 @@
 @import '~antd/dist/antd.css';
 
 body {
-  --col-neutral-400: #9c7069;
+  --col-neutral-200: #E2D7D5;
+  --col-neutral-400: #bd8a82;
   --col-brand-300: #4c956c;
   --col-brand-400: #2c6e49;
 }
@@ -20,7 +21,8 @@ body {
 
 label {
   display: block;
-  color: var(--col-neutral-400);
+  /* color: var(--col-neutral-400); */
+  color: black;
   margin: 1.5em;
 }
 
@@ -52,8 +54,8 @@ label {
   min-height: 100vh;
   display: grid;
   gap: 3em;
-  background-color: var(--col-neutral-400);
-  justify-content: center;
+  background-color: var(--col-neutral-200);
+  justify-content: left;
   align-content: center;
   width: auto;
   padding: 2em;
@@ -73,22 +75,29 @@ main {
 }
 
 .resultItem {
-  display: flex;
-  box-shadow: 5px 10px;
-  border-radius: 10em;
   height: min-content;
+  width: max-content;
+  outline: black 2px solid;
+  filter: drop-shadow(2px 2px 1px black);
   font-size: 2em;
   font-weight: 400;
+  border-radius: 0.5em;
 }
 
 .resultItem > *
 {
-  border-radius: 10em;
   padding: 0.5em;
+  display: inline-block;
+}
+
+.countyNameLabel {
+  background-color: var(--col-neutral-400);
+  border-radius: 0.5em 0 0 0.5em;
 }
 
 .deadlineLabel {
   background-color: var(--col-brand-300);
+  border-radius: 0 0.5em 0.5em 0;
 }
 
 header {
@@ -114,7 +123,7 @@ header {
   margin-top: auto;
   margin-bottom: auto;
 
-  background-color: var(--col-brand-400);
+  background-color: var(--col-brand-300);
   outline: black 2px solid;
   filter: drop-shadow(2px 2px 1px black);
   border-radius: 0.5em;
