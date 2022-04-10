@@ -1,12 +1,9 @@
 @import '~antd/dist/antd.css';
 
 body {
-  --col-neutral-300: #FFF7EB;
-  --col-neutral-400: #F0E8DD;
-  --col-neutral-500: #CFC8BE;
-  --col-brand-300: #FF9D00;
-  --col-brand-400: #F7AE39;
-  --col-brand-500: #C97C00;
+  --col-neutral-400: #9c7069;
+  --col-brand-300: #4c956c;
+  --col-brand-400: #2c6e49;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -14,7 +11,7 @@ body {
 }
 
 .inputPane {
-  background-color: var(--col-brand-300);
+  background-color: var(--col-brand-400);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -24,11 +21,7 @@ body {
 label {
   display: block;
   color: var(--col-neutral-400);
-  /* outline: var(--col-neutral-300) 1px solid; */
   margin: 1.5em;
-  /* border-radius: 1em; */
-  /* text-align: left; */
-  /* padding:0.5em; */
 }
 
 .controlLabel {
@@ -36,12 +29,9 @@ label {
 }
 
 .radioGroup {
-  /* background-color: white; */
-  /* outline: var(--col-brand-400) 1px solid; */
   border-radius: 1px;
   width: 100%;
   display: flex;
-  /* justify-content: space-around; */
   flex-shrink: 0;
   flex-grow: 1;
   justify-content: stretch;
@@ -62,7 +52,7 @@ label {
   min-height: 100vh;
   display: grid;
   gap: 3em;
-  background-color: var(--col-neutral-500);
+  background-color: var(--col-neutral-400);
   justify-content: center;
   align-content: center;
   width: auto;
@@ -78,15 +68,12 @@ h1 {
 
 main {
   display: grid;
-  /* grid-auto-columns: auto;
-  grid-auto-flow: column; */
   grid-template-columns: min-content auto;
   width: 100vw;
 }
 
 .resultItem {
   display: flex;
-  background-color: var(--col-neutral-300);
   box-shadow: 5px 10px;
   border-radius: 10em;
   height: min-content;
@@ -109,23 +96,12 @@ header {
   width: min-content;
   line-height: 0.9;
 }
-/* .App-header {
-  /* background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white; */
 
 @media screen and (max-width > 10000px) {
 
 }
 
 .inputPane {
-  /* position: fixed;
-  inset: 0px auto 0px 0px; */
   width: min-content;
   height: 100%;
   padding:4em;
@@ -134,18 +110,13 @@ header {
 
 .input {
   width: 90%;
-  /* height: min-content; */
-  /* margin-right: auto; */
   margin-left: auto;
   margin-top: auto;
   margin-bottom: auto;
 
-  /* text-align: center; */
-  background-color: var(--col-brand-300);
-  /* box-shadow: 5px 10px; */
+  background-color: var(--col-brand-400);
   outline: black 2px solid;
   filter: drop-shadow(2px 2px 1px black);
-  /* font-size: em; */
   border-radius: 0.5em;
 }
 
