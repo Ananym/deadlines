@@ -14,8 +14,12 @@ function App() {
 
   const displayItems = displayData.map(county => 
     <div className="resultItem" key={county.name}>
-      <div className="countyNameLabel">{county.name}</div>
-      <div className="deadlineLabel">{county.deadlineInfo.submissionDate.format("ddd MMM Do")} @ {county.deadlineInfo.submissionTime}</div>
+      <div className="nameSection">{county.name}</div>
+      <div className="dateSection">
+        <div className="deadlineLabel">Due: {county.deadlineInfo.submissionDate.format("ddd Do MMM")} - {county.deadlineInfo.submissionTime}</div>
+        <div className="publicationLabel">For: {county.deadlineInfo.publicationDate.format("ddd Do MMM")}</div>
+      </div>
+
     </div>)
 
   return (
@@ -26,13 +30,13 @@ function App() {
         <CountySelector className="countySelector" deadlineData={deadlineData} setSelectedCounties={setSelectedCounties}/>
         
       <label>
-        <div class="controlLabel">Court deadline:</div>
+        <div className="controlLabel">Court deadline:</div>
         <DatePicker size='large' className="datePicker horizontalControl" onChange={setSelectedDate}/>
       </label>
       </div>
       </div>
       <div className="displayPane">
-        {displayItems || <div class="placeholderNote">Select some inputs yo</div>}
+        {displayItems || <span className="label placeholderNote">Select some inputs yo</span>}
       </div>
     </main>
   );

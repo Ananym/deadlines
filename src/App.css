@@ -70,16 +70,16 @@ h1 {
 main {
   display: grid;
   background-color: var(--col-neutral-200);
-  grid-template-columns: min-content max-content auto;
+  grid-template-columns: min-content auto;
   width: 100vw;
 }
 
 .resultItem {
   height: min-content;
-  width: 100%;
+  width: max-content;
   /* outline: black 2px solid; */
-  /* filter: drop-shadow(2px 2px 1px black); */
-  font-size: 2em;
+  filter: drop-shadow(2px 2px 1px black);
+  font-size: 1.5em;
   font-weight: 400;
   /* border-radius: 0.5em; */
   display: flex;
@@ -88,20 +88,22 @@ main {
 .resultItem > *
 {
   padding: 0.5em;
+  width: max-content;
   /* display: inline-block; */
 }
 
-.countyNameLabel {
+.nameSection {
   background-color: var(--col-neutral-400);
   /* border-radius: 0.5em 0 0 0.5em; */
   width: 33%;
 }
 
-.deadlineLabel {
+.dateSection {
   background-color: var(--col-brand-300);
   /* border-radius: 0 0.5em 0.5em 0; */
-  width: auto;
+  width: max-content;
   flex-grow: 1;
+  display: block;
 }
 
 header {
@@ -124,7 +126,7 @@ header {
 .input {
   width: 90%;
   margin-left: auto;
-  margin-top: max(1em,auto);
+  margin-top: auto;
   margin-bottom: auto;
 
   background-color: var(--col-brand-300);

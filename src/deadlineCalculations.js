@@ -27,7 +27,7 @@ function calculateDeadline(county, courtDeadline) {
 
     console.log(`${county.name} publishes on ${Object.keys(county.publicationDays)}, will publish on ${publicationDate.format("dddd, MMMM Do")} so its deadline is ${submissionDate.format("dddd, MMMM Do")} because daysPrior is ${publicationDetails.daysPrior}`)
 
-    return {submissionDate, submissionTime:publicationDetails.time};
+    return {submissionDate, submissionTime:publicationDetails.time, publicationDate};
 
 }
 
