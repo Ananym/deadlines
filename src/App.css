@@ -96,6 +96,7 @@ main {
   background-color: var(--col-neutral-400);
   /* border-radius: 0.5em 0 0 0.5em; */
   width: 33%;
+  display: flex;
   justify-content: center;
   align-items: center;
 }
