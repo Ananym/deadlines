@@ -3,8 +3,9 @@
 body {
   --col-neutral-200: #E2D7D5;
   --col-neutral-400: #bd8a82;
-  --col-brand-300: #4c956c;
+  --col-brand-300: #40c77b;
   --col-brand-400: #2c6e49;
+  --col-grey-300: #cecece;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -12,7 +13,7 @@ body {
 }
 
 .inputPane {
-  background-color: var(--col-brand-400);
+  background-color: var(--col-brand-300);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -58,6 +59,7 @@ label {
   align-content: center;
   width: 100%;
   padding: 4em;
+  grid-template-columns: auto;
 
   /* background-image: url("spring1.webp");
   background-color: var(--col-neutral-200);
@@ -70,14 +72,16 @@ label {
 h1 {
   font-size: 6em;
   font-weight: 800;
-  filter: drop-shadow(1px 1px 1px var(--col-brand-400));
+  /* filter: drop-shadow(1px 1px 1px var(--col-brand-400)); */
   margin: 0 0;
-  color: var(--col-brand-400);
+  /* color: var(--col-brand-400); */
+  filter: drop-shadow(1px 1px 1px black);
+  color: black;
 }
 
 main {
   display: grid;
-  background-color: var(--col-neutral-200);
+  background-color: var(--col-grey-300);
   grid-template-columns: min-content auto;
   width: 100vw;
   
@@ -85,14 +89,14 @@ main {
 
 .resultItem {
   height: min-content;
-  width: max-content;
+  /* width: max-content; */
+  width: 100%;
   /* outline: black 2px solid; */
   filter: drop-shadow(2px 2px 1px black);
   font-size: 1.5em;
   font-weight: 400;
   /* border-radius: 0.5em; */
   display: flex;
-  white-space: nowrap;
   background-color: var(--col-brand-300);
 }
 
@@ -103,12 +107,15 @@ main {
 }
 
 .nameSection {
-  background-color: var(--col-neutral-400);
+  background-color: var(--col-brand-300);
+  /* background-color: var(--col-neutral-400); */
   /* border-radius: 0.5em 0 0 0.5em; */
-  width: 33%;
+  /* width: 50%; */
+  width: 12em;
   display: flex;
   justify-content: center;
   align-items: center;
+  text-align: center;
 
   /* border-radius: 0 100% 100% 0; */
   border-right-style: solid;
@@ -116,22 +123,23 @@ main {
   border-right-color: #143119;
 
   padding: 0.2em;
-  padding-left: 0.5em;
-  padding-right: 0.5em;
+  padding-left: 1em;
+  padding-right: 1em;
 }
 
 .dateSection {
-  background-color: var(--col-brand-300);
+  background-color: white;
   /* border-radius: 0 0.5em 0.5em 0; */
   width: max-content;
   flex-grow: 1;
   display: block;
+  white-space: nowrap;
 }
 
 .dateSection > * {
-  padding: 0.2em;
-  padding-left: 0.5em;
-  padding-right: 0.5em;
+  padding: 0.3em;
+  padding-left: 1em;
+  padding-right: 1em;
 }
 
 .deadlineLabel {
@@ -169,7 +177,8 @@ header {
   margin-top: auto;
   margin-bottom: auto;
 
-  background-color: var(--col-brand-300);
+  /* background-color: var(--col-brand-300); */
+  background-color: white;
   outline: black 2px solid;
   filter: drop-shadow(2px 2px 1px black);
   border-radius: 0.5em;

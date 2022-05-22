@@ -21,7 +21,7 @@ const deadlineData = [
              "publicationDays":{"Friday":{"daysPrior":2,"time":"5pm"}}
           },
           {
-             "name":"scounty2",
+             "name":"Northumberland County",
              "publicationDays":{"Monday":{"daysPrior":2,"time":"5pm"}}
           }
        ]
