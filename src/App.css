@@ -58,13 +58,21 @@ label {
   align-content: center;
   width: 100%;
   padding: 4em;
+
+  /* background-image: url("spring1.webp");
+  background-color: var(--col-neutral-200);
+  background-size: cover;
+  background-attachment: fixed;
+  background-blend-mode: soft-light; */
 }
+
 
 h1 {
   font-size: 6em;
   font-weight: 800;
-  filter: drop-shadow(1px 1px 1px black);
-  margin: 0 0
+  filter: drop-shadow(1px 1px 1px var(--col-brand-400));
+  margin: 0 0;
+  color: var(--col-brand-400);
 }
 
 main {
@@ -72,6 +80,7 @@ main {
   background-color: var(--col-neutral-200);
   grid-template-columns: min-content auto;
   width: 100vw;
+  
 }
 
 .resultItem {
@@ -83,11 +92,12 @@ main {
   font-weight: 400;
   /* border-radius: 0.5em; */
   display: flex;
+  white-space: nowrap;
+  background-color: var(--col-brand-300);
 }
 
 .resultItem > *
 {
-  padding: 0.5em;
   width: max-content;
   /* display: inline-block; */
 }
@@ -99,6 +109,15 @@ main {
   display: flex;
   justify-content: center;
   align-items: center;
+
+  /* border-radius: 0 100% 100% 0; */
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #143119;
+
+  padding: 0.2em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
 }
 
 .dateSection {
@@ -107,6 +126,24 @@ main {
   width: max-content;
   flex-grow: 1;
   display: block;
+}
+
+.dateSection > * {
+  padding: 0.2em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+.deadlineLabel {
+  /* outline: black 2px solid; */
+  /* padding-bottom: 0; */
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #143119;
+}
+
+.publicationLabel {
+  /* padding-top: 0; */
 }
 
 header {
