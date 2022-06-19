@@ -21,9 +21,45 @@ const deadlineData = [
              "publicationDays":{"Friday":{"daysPrior":2,"time":"5pm"}}
           },
           {
-             "name":"Northumberland County",
+             "name":"aNorthumberland County",
              "publicationDays":{"Monday":{"daysPrior":2,"time":"5pm"}}
-          }
+          },
+          {
+            "name":"bNorthumberland County",
+            "publicationDays":{"Monday":{"daysPrior":2,"time":"5pm"}}
+         },
+         {
+            "name":"cNorthumberland County",
+            "publicationDays":{"Monday":{"daysPrior":2,"time":"5pm"}}
+         },
+         {
+            "name":"dNorthumberland County",
+            "publicationDays":{"Monday":{"daysPrior":2,"time":"5pm"}}
+         },
+         {
+            "name":"eNorthumberland County",
+            "publicationDays":{"Monday":{"daysPrior":2,"time":"5pm"}}
+         },
+         {
+            "name":"fNorthumberland County",
+            "publicationDays":{"Monday":{"daysPrior":2,"time":"5pm"}}
+         },
+         {
+            "name":"gNorthumberland County",
+            "publicationDays":{"Monday":{"daysPrior":2,"time":"5pm"}}
+         },
+         {
+            "name":"hNorthumberland County",
+            "publicationDays":{"Monday":{"daysPrior":2,"time":"5pm"}}
+         },
+         {
+            "name":"iNorthumberland County",
+            "publicationDays":{"Monday":{"daysPrior":2,"time":"5pm"}}
+         },
+         {
+            "name":"jNorthumberland County",
+            "publicationDays":{"Monday":{"daysPrior":2,"time":"5pm"}}
+         }
        ]
     },
     {

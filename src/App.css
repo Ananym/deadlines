@@ -174,8 +174,8 @@ header {
 .input {
   width: 90%;
   margin-left: auto;
-  margin-top: auto;
-  margin-bottom: auto;
+  margin-top: 5em;
+  /* margin-bottom: auto; */
 
   /* background-color: var(--col-brand-300); */
   background-color: white;
