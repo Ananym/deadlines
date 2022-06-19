@@ -20,10 +20,12 @@ function CountySelector({deadlineData, setSelectedCounties}) {
         countyIndex=>deadlineData[selectedStateIndex].counties[countyIndex] )), 
         [selectedCountyIndexes] )
 
+    const searchFilter = (input,option) => option.key.toLowerCase().startsWith(input.toLowerCase());
+
     return(
         <div>
             <label>
-                <div class="controlLabel">State:</div>
+                <div className="controlLabel">State:</div>
                 <Radio.Group className="radioGroup" 
                     defaultValue={selectedStateIndex}
                     onChange={e=>setSelectedStateIndex(e.target.value)}>
@@ -34,7 +36,7 @@ function CountySelector({deadlineData, setSelectedCounties}) {
             </label>
 
             <label>
-            <div class="controlLabel">Counties:</div>
+            <div className="controlLabel">Counties:</div>
             <Select className="select horizontalControl"
                 mode='multiple'
                 allowClear
@@ -42,6 +44,8 @@ function CountySelector({deadlineData, setSelectedCounties}) {
                 showSearch
                 value={selectedCountyIndexes}
                 size='large'
+                maxTagCount='responsive'
+                filterOption={searchFilter}
                 onChange={setSelectedCountyIndexes}>
                 {countyOptions}
             </Select>
