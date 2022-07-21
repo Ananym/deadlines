@@ -16,8 +16,14 @@ function App() {
     <div className="resultItem" key={county.name}>
       <div className="nameSection">{county.name}</div>
       <div className="dateSection">
-        <div className="deadlineLabel">Due: {county.deadlineInfo.submissionDate.format("ddd Do MMM")} - {county.deadlineInfo.submissionTime}</div>
-        <div className="publicationLabel">For: {county.deadlineInfo.publicationDate.format("ddd Do MMM")}</div>
+        <table>
+        {/* <div className="deadlineLabel">Due: {county.deadlineInfo.submissionDate.format("ddd Do MMM")} - {county.deadlineInfo.submissionTime}</div>
+        <div className="publicationLabel">For: {county.deadlineInfo.publicationDate.format("ddd Do MMM")}</div> */}
+          
+            <tr className="deadlineLabel"><td>Due: </td><td>{county.deadlineInfo.submissionDate.format("ddd Do MMM")} - {county.deadlineInfo.submissionTime}</td></tr>
+            <tr className="publicationLabel"><td>For: </td><td>{county.deadlineInfo.publicationDate.format("ddd Do MMM")}</td></tr>
+          
+        </table>
       </div>
 
     </div>)

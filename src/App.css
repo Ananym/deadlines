@@ -97,7 +97,7 @@ main {
   font-weight: 400;
   /* border-radius: 0.5em; */
   display: flex;
-  background-color: var(--col-brand-300);
+  /* background-color: var(--col-brand-300); */
 }
 
 .resultItem > *
@@ -108,16 +108,13 @@ main {
 
 .nameSection {
   background-color: var(--col-brand-300);
-  /* background-color: var(--col-neutral-400); */
-  /* border-radius: 0.5em 0 0 0.5em; */
-  /* width: 50%; */
   width: 12em;
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
 
-  /* border-radius: 0 100% 100% 0; */
+  border-radius: 0.5em 0 0 0.5em;
   border-right-style: solid;
   border-right-width: 2px;
   border-right-color: #143119;
@@ -134,24 +131,32 @@ main {
   flex-grow: 1;
   display: block;
   white-space: nowrap;
-}
-
-.dateSection > * {
+  border-radius: 0 0.5em 0.5em 0;
   padding: 0.3em;
   padding-left: 1em;
   padding-right: 1em;
 }
 
+/* .dateSection > * {
+  padding: 0.3em;
+  padding-left: 1em;
+  padding-right: 1em;
+} */
+
+td:first-child {
+  padding-right: 0.3em;
+}
+
 .deadlineLabel {
   /* outline: black 2px solid; */
-  /* padding-bottom: 0; */
-  border-bottom-style: solid;
+  padding-bottom: 0;
+  /* border-bottom-style: solid;
   border-bottom-width: 2px;
-  border-bottom-color: #143119;
+  border-bottom-color: #143119; */
 }
 
 .publicationLabel {
-  /* padding-top: 0; */
+  padding-top: 0;
 }
 
 header {

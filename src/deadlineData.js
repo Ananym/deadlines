@@ -8,7 +8,7 @@ const deadlineData = [
              "publicationDays":{"Wednesday":{"daysPrior":2,"time":"5pm"}}
           },
           {
-             "name":"pcounty2",
+             "name":"pcounty2butithasanextremelylongname",
              "publicationDays":{"Tuesday":{"daysPrior":2,"time":"5pm"}}
           }
        ]
