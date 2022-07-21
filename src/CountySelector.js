@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Radio, Select, Space } from "antd";
+import { Radio, Select } from "antd";
 const { Option } = Select;
 
 function CountySelector({deadlineData, setSelectedCounties}) {
@@ -18,7 +18,7 @@ function CountySelector({deadlineData, setSelectedCounties}) {
     
     useEffect( ()=>setSelectedCounties(selectedCountyIndexes.map( 
         countyIndex=>deadlineData[selectedStateIndex].counties[countyIndex] )), 
-        [selectedCountyIndexes] )
+        [selectedCountyIndexes, deadlineData, selectedStateIndex, setSelectedCounties] )
 
     const searchFilter = (input,option) => option.key.toLowerCase().startsWith(input.toLowerCase());
 

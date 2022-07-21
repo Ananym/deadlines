@@ -83,8 +83,7 @@ main {
   display: grid;
   background-color: var(--col-grey-300);
   grid-template-columns: min-content auto;
-  width: 100vw;
-  
+  width: auto;
 }
 
 .resultItem {

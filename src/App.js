@@ -29,17 +29,16 @@ function App() {
     </div>)
 
   return (
-      <main>
+    <main>
       <div className="inputPane">
-      <header className="App-header"><h1>Priscilla's Amazing Publication Deadline Calculator</h1></header>
-      <div className="input">
-        <CountySelector className="countySelector" deadlineData={deadlineData} setSelectedCounties={setSelectedCounties}/>
-        
-      <label>
-        <div className="controlLabel">Court deadline:</div>
-        <DatePicker size='large' className="datePicker horizontalControl" onChange={setSelectedDate}/>
-      </label>
-      </div>
+        <header className="App-header"><h1>Priscilla's Amazing Publication Deadline Calculator</h1></header>
+          <div className="input">
+            <CountySelector className="countySelector" deadlineData={deadlineData} setSelectedCounties={setSelectedCounties}/>
+            <label>
+              <div className="controlLabel">Court deadline:</div>
+              <DatePicker size='large' className="datePicker horizontalControl" onChange={setSelectedDate}/>
+            </label>
+          </div>
       </div>
       <div className="displayPane">
         {displayItems || <span className="label placeholderNote">Select some inputs yo</span>}
