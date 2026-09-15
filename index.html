@@ -104,7 +104,7 @@
                 </div>
                 <p class="adjustment" x-show="r.calc.deadline.adjusted">
                   Moved from <span x-text="fmt(r.calc.deadline.nominal)"></span>
-                  (<span x-text="r.calc.deadline.adjustments[0].reason"></span>).
+                  (<span x-text="r.calc.deadline.adjustments[0]?.reason"></span>).
                 </p>
                 <div class="deadline late" x-show="r.calc.lateDeadline">
                   <span class="deadline-label">Late deadline</span>
