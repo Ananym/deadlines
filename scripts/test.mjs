@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { federalHolidays, holidayName, isoDate } from '../holidays.js';
-import { calcDeadline, rollBackToBusinessDay, parseLocalDate, publicationDateFor } from '../calc.js';
+import { calcDeadline, calcSaleDeadline, firstTuesday, rollBackToBusinessDay, parseLocalDate, publicationDateFor } from '../calc.js';
 import DATA from '../data.js';
 import CASES from './cases.mjs';
 
@@ -61,16 +61,17 @@ test('Georgia weekly paper: 5 days prior from Wednesday is Friday before', () =>
   assert.equal(r.lateDeadline, null); // same as regular, so omitted
 });
 
-test('Georgia late deadline is exposed when it differs', () => {
-  const r = calcDeadline(county('Georgia', 'Fulton'), d('2026-09-17')); // Thursday
-  assert.equal(isoDate(r.deadline.date), '2026-09-11'); // 6 days prior
-  assert.equal(isoDate(r.lateDeadline.date), '2026-09-14'); // 3 days prior
+test('late deadline is exposed when a county defines one', () => {
+  const synthetic = { name: 'X', publicationDays: ['Thursday'], deadlines: { Thursday: { daysPrior: 6, time: '12pm' } }, lateDeadlines: { Thursday: { daysPrior: 3, time: '12pm' } } };
+  const r = calcDeadline(synthetic, d('2026-09-17')); // Thursday
+  assert.equal(isoDate(r.deadline.date), '2026-09-11');
+  assert.equal(isoDate(r.lateDeadline.date), '2026-09-14');
   assert.equal(r.lateDeadline.time, '12pm');
 });
 
 test('Monday deadline on Labor Day rolls back to Friday', () => {
-  // Hall County publishes Wednesday, 2 days prior -> Monday 2026-09-07 (Labor Day)
-  const r = calcDeadline(county('Georgia', 'Hall'), d('2026-09-09'));
+  // Effingham publishes Wednesday, 2 days prior -> Monday 2026-09-07 (Labor Day)
+  const r = calcDeadline(county('Georgia', 'Effingham'), d('2026-09-09'));
   assert.equal(isoDate(r.deadline.nominal), '2026-09-07');
   assert.equal(isoDate(r.deadline.date), '2026-09-04');
   assert.equal(r.deadline.adjusted, true);
@@ -102,10 +103,9 @@ test('Per-day rules: Charleston weekend editions use Thursday @ 4pm', () => {
 });
 
 test('Publication on a holiday produces a note', () => {
-  // Newton publishes Sunday; Christmas 2022 was a Sunday (observed Monday). Use Jul 4 2027 (Sunday).
-  const r = calcDeadline(county('Georgia', 'Newton'), d('2027-07-04'));
-  assert.equal(isoDate(r.publicationDate), '2027-07-04');
-  // Jul 4 2027 is Sunday -> observed Monday Jul 5, so the Sunday itself is not flagged.
+  // Newton publishes Saturday; Jul 4 2026 is a Saturday but observed Friday, so the Saturday itself is not flagged.
+  const r = calcDeadline(county('Georgia', 'Newton'), d('2026-07-04'));
+  assert.equal(isoDate(r.publicationDate), '2026-07-04');
   assert.ok(!r.notes.some((n) => n.startsWith('Publication date falls')));
   const c = calcDeadline(county('South Carolina', 'Aiken'), d('2026-12-25'));
   assert.ok(c.notes.some((n) => n.includes('Christmas Day')));
@@ -124,13 +124,32 @@ test('every county in data.js computes for every day of a week', () => {
   }
 });
 
+test('firstTuesday', () => {
+  assert.equal(isoDate(firstTuesday(2026, 10)), '2026-11-03');
+  assert.equal(isoDate(firstTuesday(2026, 11)), '2026-12-01');
+  assert.equal(isoDate(firstTuesday(2027, 5)), '2027-06-01');
+});
+
+test('sale mode: every Georgia county starts its 4-week run inside the 28 days before the sale', () => {
+  const sale = d('2026-11-03');
+  for (const c of DATA[0].counties) {
+    const r = calcSaleDeadline(c, sale);
+    assert.ok(r, c.name);
+    const daysBefore = Math.round((sale - r.firstPublication) / 86400000);
+    assert.ok(daysBefore <= 28 && daysBefore >= 22, `${c.name} first publication ${isoDate(r.firstPublication)}`);
+    assert.equal(Math.round((r.lastPublication - r.firstPublication) / 86400000), 21);
+    assert.ok(r.lastPublication < sale, `${c.name} last run ${isoDate(r.lastPublication)} not before sale`);
+  }
+});
+
 // ---------- Table-driven cases from scripts/cases.mjs ----------
 const stamp = (dl) => `${isoDate(dl.date)} ${dl.time}`;
 for (const c of CASES) {
-  test(`${c.state}/${c.county} published by ${c.court} -> ${c.deadline}`, () => {
+  const label = c.sale ? `sale on ${c.sale}` : `published by ${c.court}`;
+  test(`${c.state}/${c.county} ${label} -> ${c.deadline}`, () => {
     const county = DATA.find((s) => s.name === c.state)?.counties.find((x) => x.name === c.county);
     assert.ok(county, `no county ${c.state}/${c.county}`);
-    const r = calcDeadline(county, d(c.court));
+    const r = c.sale ? calcSaleDeadline(county, d(c.sale)) : calcDeadline(county, d(c.court));
     assert.ok(r, 'no result');
     assert.equal(isoDate(r.publicationDate), c.publication, 'publication date');
     assert.equal(stamp(r.deadline), c.deadline, 'deadline');

@@ -30,6 +30,14 @@
         </div>
       </div>
 
+      <div class="control" x-show="saleModeAvailable">
+        <div class="control-label">Notice</div>
+        <div class="segmented" role="radiogroup" aria-label="Notice type">
+          <button type="button" role="radio" :aria-checked="mode === 'publish'" :class="{ active: mode === 'publish' }" @click="mode = 'publish'">Publish by date</button>
+          <button type="button" role="radio" :aria-checked="mode === 'sale'" :class="{ active: mode === 'sale' }" @click="mode = 'sale'">Foreclosure sale</button>
+        </div>
+      </div>
+
       <div class="control control-counties" @click.outside="open = false" @keydown.escape="open = false">
         <label class="control-label" for="county-search">Counties</label>
         <div class="picker" :class="{ open }">
@@ -56,8 +64,12 @@
       </div>
 
       <div class="control control-date">
-        <label class="control-label" for="court-date">Must be published by</label>
+        <label class="control-label" for="court-date" x-text="isSale ? 'Sale date' : 'Must be published by'"></label>
         <input id="court-date" type="date" x-model="courtDate" />
+        <p class="hint" x-show="isSale">
+          <template x-if="court && !isFirstTuesday(court)"><span class="caution-text">Not a first Tuesday. </span></template>
+          <button type="button" class="link" @click="setNextSale()" x-text="`Next sale: ${fmt(nextSale())}`"></button>
+        </p>
       </div>
     </section>
 
@@ -67,8 +79,8 @@
       <template x-if="results.length">
         <div>
           <p class="results-heading">
-            Send the notice to each paper by the date shown, for publication on or before
-            <strong x-text="fmtLong(court)"></strong>.
+            <template x-if="isSale"><span>Send the notice to each paper by the date shown so it runs weekly for the four weeks before the sale on <strong x-text="fmtLong(court)"></strong>.</span></template>
+            <template x-if="!isSale"><span>Send the notice to each paper by the date shown, for publication on or before <strong x-text="fmtLong(court)"></strong>.</span></template>
             <span class="holiday-summary" x-show="holidayCount">
               <span class="pill holiday">Bank holiday</span>
               <span x-text="holidayCount === 1 ? '1 deadline moved earlier.' : `${holidayCount} deadlines moved earlier.`"></span>
@@ -91,7 +103,8 @@
                   <span x-text="fmt(r.calc.deadline.nominal)"></span> is <span x-text="adjustReason(r.calc.deadline)"></span>, so the deadline moves back to <span x-text="dayName(r.calc.deadline.date)"></span>.
                 </p>
                 <p class="meta">
-                  Publishes <span x-text="fmt(r.calc.publicationDate)"></span>
+                  <template x-if="isSale"><span>Runs <span x-text="fmt(r.calc.firstPublication)"></span> to <span x-text="fmt(r.calc.lastPublication)"></span></span></template>
+                  <template x-if="!isSale"><span>Publishes <span x-text="fmt(r.calc.publicationDate)"></span></span></template>
                   · <span x-text="r.calc.rule.daysPrior"></span> days prior
                   <template x-if="r.calc.lateDeadline">
                     <span> · late deadline <span x-text="fmt(r.calc.lateDeadline.date)"></span>, <span x-text="r.calc.lateDeadline.time"></span><span x-show="r.calc.lateDeadline.adjusted"> (moved from <span x-text="fmt(r.calc.lateDeadline.nominal)"></span>)</span></span>

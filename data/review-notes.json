@@ -1,23 +1,6 @@
 {
-  "_comment": "Per-county cautions shown in the app. Sourced from data/VERIFICATION.md (Sept 2026). Remove an entry once the CSV row has been confirmed with the paper.",
-  "Georgia": {
-    "Fulton": "Fulton's legal organ changed to the South Fulton Neighbor on 1 Jan 2024; this row describes the old Daily Report schedule. Get the Neighbor's day and deadline before relying on it",
-    "Bibb": "Bibb's legal organ changed to The Macon Reporter on 1 Jan 2026; this row describes The Macon Telegraph. The Reporter's Monroe edition runs Wednesday with a Friday-noon deadline",
-    "Forsyth": "Forsyth County News states its public-notice deadline is noon Friday (5 days prior), one day later than this row",
-    "Cobb": "The Marietta Daily Journal publishes a Tuesday-noon deadline for Friday, which is this row's late deadline; the 7-day figure may be a built-in safety margin",
-    "Muscogee": "The Ledger-Enquirer has printed only Wednesday and Sunday since Aug 2024, so a Tuesday publication day is no longer possible",
-    "Dekalb": "The paper's published wording is ambiguous between Wednesday 8 days prior and Thursday 7 days prior; one source says Wednesday 5pm",
-    "Long": "Long and Tattnall are served by the same paper (Journal Sentinel, Reidsville) but are recorded with different publication days",
-    "Tattnall": "Long and Tattnall are served by the same paper (Journal Sentinel, Reidsville) but are recorded with different publication days",
-    "Clay": "Clay, Quitman and Randolph share the Cuthbert Southern Tribune but carry three different schedules",
-    "Quitman": "Clay, Quitman and Randolph share the Cuthbert Southern Tribune but carry three different schedules",
-    "Randolph": "Clay, Quitman and Randolph share the Cuthbert Southern Tribune but carry three different schedules",
-    "Schley": "Schley, Stewart and Webster share the Stewart Webster Journal, but Schley is recorded as Wednesday and the others Thursday",
-    "Stewart": "Schley, Stewart and Webster share the Stewart Webster Journal, but Schley is recorded as Wednesday and the others Thursday",
-    "Webster": "Schley, Stewart and Webster share the Stewart Webster Journal, but Schley is recorded as Wednesday and the others Thursday",
-    "Crisp": "Crisp and Wilcox share The Cordele Dispatch but are recorded with different deadline times (11am vs 3:30pm)",
-    "Wilcox": "Crisp and Wilcox share The Cordele Dispatch but are recorded with different deadline times (11am vs 3:30pm)"
-  },
+  "_comment": "Per-county cautions shown in the app. Georgia rows were confirmed against the November 2026 sale report, so no Georgia cautions remain. South Carolina notes come from data/VERIFICATION.md (Sept 2026). Remove an entry once the CSV row has been confirmed with the paper.",
+  "Georgia": {},
   "South Carolina": {
     "Richland": "If this row means The State, it has printed only Wednesday, Friday and Sunday since April 2024, not daily",
     "Saluda": "If this row means The State, it has printed only Wednesday, Friday and Sunday since April 2024, not daily",

@@ -1,6 +1,6 @@
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/module.esm.js';
 import DATA from './data.js';
-import { calcDeadline, parseLocalDate } from './calc.js';
+import { calcDeadline, calcSaleDeadline, firstTuesday, parseLocalDate } from './calc.js';
 import { holidayName } from './holidays.js';
 
 const STORAGE_KEY = 'deadlines:v1';
@@ -25,6 +25,7 @@ Alpine.data('app', () => ({
   query: '',
   open: false,
   courtDate: '',
+  mode: 'publish', // 'publish' | 'sale' (Georgia foreclosure: 4 weekly runs before a first-Tuesday sale)
 
   init() {
     const saved = load();
@@ -32,14 +33,16 @@ Alpine.data('app', () => ({
     if (idx >= 0) this.stateIndex = idx;
     this.selectedByState = saved.selectedByState ?? {};
     this.courtDate = saved.courtDate ?? '';
-    this.$watch('stateIndex', () => this.save());
+    if (saved.mode === 'sale') this.mode = 'sale';
+    this.$watch('stateIndex', () => { if (!this.saleModeAvailable) this.mode = 'publish'; this.save(); });
+    this.$watch('mode', () => this.save());
     this.$watch('selectedByState', () => this.save());
     this.$watch('courtDate', () => this.save());
   },
   save() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        state: this.state.name, selectedByState: this.selectedByState, courtDate: this.courtDate,
+        state: this.state.name, selectedByState: this.selectedByState, courtDate: this.courtDate, mode: this.mode,
       }));
     } catch { /* private mode etc. */ }
   },
@@ -52,6 +55,8 @@ Alpine.data('app', () => ({
     return this.state.counties.filter((c) => !q || c.name.toLowerCase().includes(q));
   },
   get court() { return this.courtDate ? parseLocalDate(this.courtDate) : null; },
+  get saleModeAvailable() { return this.state.name === 'Georgia'; },
+  get isSale() { return this.mode === 'sale' && this.saleModeAvailable; },
   get results() {
     if (!this.court || !this.selected.length) return [];
     const today = parseLocalDate(todayIso());
@@ -59,7 +64,7 @@ Alpine.data('app', () => ({
       .map((name) => this.state.counties.find((c) => c.name === name))
       .filter(Boolean)
       .map((county) => {
-        const calc = calcDeadline(county, this.court);
+        const calc = this.isSale ? calcSaleDeadline(county, this.court) : calcDeadline(county, this.court);
         if (!calc) return null;
         const daysLeft = Math.round((calc.deadline.date - today) / 86400000);
         // Name of the bank holiday that pushed this deadline earlier, if any.
@@ -82,6 +87,17 @@ Alpine.data('app', () => ({
     this.query = '';
   },
   popLast() { if (this.selected.length) this.selected = this.selected.slice(0, -1); },
+  isFirstTuesday(d) { return firstTuesday(d.getFullYear(), d.getMonth()).getTime() === d.getTime(); },
+  nextSale() {
+    const today = parseLocalDate(todayIso());
+    let t = firstTuesday(today.getFullYear(), today.getMonth());
+    if (t < today) t = firstTuesday(today.getFullYear(), today.getMonth() + 1);
+    return t;
+  },
+  setNextSale() {
+    const t = this.nextSale();
+    this.courtDate = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+  },
 
   dayShort(county) {
     return county.publicationDays.length === 7 ? 'Daily' : county.publicationDays.map((d) => DAY_ABBR[d]).join(' ');

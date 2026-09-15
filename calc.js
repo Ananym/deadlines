@@ -59,6 +59,33 @@ function buildDeadline(publicationDate, rule) {
 }
 
 /**
+ * Georgia foreclosure sales happen on the first Tuesday of the month and the
+ * notice must run once a week for the four weeks immediately preceding the
+ * sale (O.C.G.A. 9-13-141). The first insertion is therefore the paper's
+ * first publication day on or after (sale - 28 days); the fourth is 21 days
+ * later. Returns the same shape as calcDeadline plus firstPublication /
+ * lastPublication, with the deadline computed from the first insertion.
+ */
+export function calcSaleDeadline(county, saleDate) {
+  const windowStart = addDays(saleDate, -28);
+  let first = null;
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(windowStart, i);
+    if (county.publicationDays.includes(DAY_NAMES[d.getDay()])) { first = d; break; }
+  }
+  if (!first) return null;
+  const base = calcDeadline(county, first);
+  if (!base) return null;
+  return { ...base, firstPublication: first, lastPublication: addDays(first, 21), saleDate };
+}
+
+/** First Tuesday of a month (Georgia foreclosure sale day). month is 0-11. */
+export function firstTuesday(year, month) {
+  const d = new Date(year, month, 1);
+  return addDays(d, (2 - d.getDay() + 7) % 7);
+}
+
+/**
  * Compute everything the UI needs for one county and a court date.
  * Returns null when the county cannot be computed (no publication days).
  */

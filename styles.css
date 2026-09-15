@@ -72,7 +72,7 @@ h1 {
 /* ---------- Controls ---------- */
 .controls {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
   gap: 20px;
   align-items: start;
   padding: 20px 0 24px;
@@ -109,6 +109,8 @@ input[type="date"], input[type="text"] {
 }
 input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
 .control-date input { min-width: 170px; height: 42px; }
+.hint { margin: 0; font-size: 12.5px; color: var(--ink-3); }
+.link { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; font-size: inherit; text-decoration: underline; text-underline-offset: 2px; }
 
 .picker { position: relative; }
 .picker-field {
