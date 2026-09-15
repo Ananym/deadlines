@@ -25,7 +25,8 @@ No build step. `index.html` loads [Alpine.js](https://alpinejs.dev) from a CDN a
 | `data/*.csv` | Source data (pipe-delimited) |
 | `scripts/build-data.mjs` | Regenerates `data.js` from the CSVs and reports inconsistent rows |
 | `scripts/test.mjs` | Tests: `node --test scripts/test.mjs` |
-| `data/VERIFICATION.md` | What has been checked against live sources |
+| `data/review-notes.json` | Per-county cautions shown in the app, distilled from the verification report |
+| `data/VERIFICATION.md` | What has been checked against live sources (Sept 2026) |
 
 Run locally with any static server, e.g. `python -m http.server` or `npx serve`, then open `index.html`. Opening the file directly won't work because ES modules need HTTP.
 
@@ -38,7 +39,7 @@ node scripts/build-data.mjs
 node --test scripts/test.mjs
 ```
 
-Georgia rows look like `COUNTY|Wednesday|friday Week prior @ 4:00 (5 days prior @ 4pm)|<late deadline>`. The parenthetical summary is what the app uses; the prose is cross-checked against it and any disagreement is printed at build time and shown in the app as a "Data caution".
+Georgia rows look like `COUNTY|Wednesday|friday Week prior @ 4:00 (5 days prior @ 4pm)|<late deadline>`. The parenthetical summary is what the app uses, except that the weekday named in the prose wins when the summary's day count lands on a different weekday. Every disagreement is printed at build time and shown in the app as a "Data caution". Add or remove entries in `data/review-notes.json` to show or clear cautions for a county.
 
 South Carolina rows look like `County|Wednesday, Friday|2 days prior @ 12pm`, with `Daily` for every day and `Tuesday-Friday: … / Saturday-Monday: Thursday @ 4pm` for per-day rules.
 

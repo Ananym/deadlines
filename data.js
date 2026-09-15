@@ -202,7 +202,10 @@ export default [
      "publicationDay": "Tuesday",
      "deadline": "wednesday Week prior @ 12:00 (6 days prior @ 12pm)",
      "lateDeadline": "wednesday Week prior @ 12:00 (6 days prior @ 12pm)"
-    }
+    },
+    "warnings": [
+     "Bibb's legal organ changed to The Macon Reporter on 1 Jan 2026; this row describes The Macon Telegraph. The Reporter's Monroe edition runs Wednesday with a Friday-noon deadline"
+    ]
    },
    {
     "name": "Bleckley",
@@ -549,7 +552,10 @@ export default [
      "publicationDay": "Thursday",
      "deadline": "thursday Week prior @ 12:00 (7 days prior @ 12pm)",
      "lateDeadline": "thursday Week prior @ 12:00 (7 days prior @ 12pm)"
-    }
+    },
+    "warnings": [
+     "Clay, Quitman and Randolph share the Cuthbert Southern Tribune but carry three different schedules"
+    ]
    },
    {
     "name": "Clayton",
@@ -612,7 +618,10 @@ export default [
       "daysPrior": 3,
       "time": "12pm"
      }
-    }
+    },
+    "warnings": [
+     "The Marietta Daily Journal publishes a Tuesday-noon deadline for Friday, which is this row's late deadline; the 7-day figure may be a built-in safety margin"
+    ]
    },
    {
     "name": "Coffee",
@@ -731,7 +740,10 @@ export default [
      "publicationDay": "Wednesday",
      "deadline": "monday Week of @ 11:00 (2 days prior @ 11am)",
      "lateDeadline": "monday Week of @ 11:00 (2 days prior @ 11am)"
-    }
+    },
+    "warnings": [
+     "Crisp and Wilcox share The Cordele Dispatch but are recorded with different deadline times (11am vs 3:30pm)"
+    ]
    },
    {
     "name": "Dade",
@@ -805,7 +817,10 @@ export default [
       "daysPrior": 6,
       "time": "12pm"
      }
-    }
+    },
+    "warnings": [
+     "The paper's published wording is ambiguous between Wednesday 8 days prior and Thursday 7 days prior; one source says Wednesday 5pm"
+    ]
    },
    {
     "name": "Dodge",
@@ -876,12 +891,12 @@ export default [
     },
     "lateDeadlines": {
      "Tuesday": {
-      "daysPrior": 5,
+      "daysPrior": 4,
       "time": "12pm"
      }
     },
     "warnings": [
-     "prose \"friday Week prior @ 12:00\" implies 4 days prior but summary says 5; using summary"
+     "summary says 5 days prior (a Thursday) but the source names friday; using 4 days prior"
     ]
    },
    {
@@ -1052,7 +1067,10 @@ export default [
      "publicationDay": "Wednesday",
      "deadline": "thursday Week prior @ 12:00 (6 days prior @ 12pm)",
      "lateDeadline": "thursday Week prior @ 12:00 (6 days prior @ 12pm)"
-    }
+    },
+    "warnings": [
+     "Forsyth County News states its public-notice deadline is noon Friday (5 days prior), one day later than this row"
+    ]
    },
    {
     "name": "Franklin",
@@ -1094,7 +1112,8 @@ export default [
      }
     },
     "warnings": [
-     "prose time 5:00 disagrees with summary time 12pm; using summary"
+     "prose time 5:00 disagrees with summary time 12pm; using summary",
+     "Fulton's legal organ changed to the South Fulton Neighbor on 1 Jan 2024; this row describes the old Daily Report schedule. Get the Neighbor's day and deadline before relying on it"
     ]
    },
    {
@@ -1632,7 +1651,7 @@ export default [
     ],
     "deadlines": {
      "Monday": {
-      "daysPrior": 9,
+      "daysPrior": 5,
       "time": "5pm"
      }
     },
@@ -1642,8 +1661,9 @@ export default [
      "lateDeadline": "wednesday Week prior @ 5:00 (9 days prior @ 5pm)"
     },
     "warnings": [
-     "prose \"wednesday Week prior @ 5:00\" implies 5 days prior but summary says 9; using summary",
-     "prose \"wednesday Week prior @ 5:00\" implies 5 days prior but summary says 9; using summary"
+     "summary says 9 days prior (a Saturday) but the source names wednesday; using 5 days prior",
+     "summary says 9 days prior (a Saturday) but the source names wednesday; using 5 days prior",
+     "Long and Tattnall are served by the same paper (Journal Sentinel, Reidsville) but are recorded with different publication days"
     ]
    },
    {
@@ -1905,7 +1925,10 @@ export default [
      "publicationDay": "Tuesday",
      "deadline": "wednesday Week prior @ 12:00 (6 days prior @ 12pm)",
      "lateDeadline": "wednesday Week prior @ 12:00 (6 days prior @ 12pm)"
-    }
+    },
+    "warnings": [
+     "The Ledger-Enquirer has printed only Wednesday and Sunday since Aug 2024, so a Tuesday publication day is no longer possible"
+    ]
    },
    {
     "name": "Newton",
@@ -1922,11 +1945,7 @@ export default [
      "publicationDay": "Sunday",
      "deadline": "wednesday Week prior @ 12:00 (4 days prior @ 12pm)",
      "lateDeadline": "wednesday Week prior @ 12:00 (4 days prior @ 12pm)"
-    },
-    "warnings": [
-     "prose \"wednesday Week prior @ 12:00\" implies 11 days prior but summary says 4; using summary",
-     "prose \"wednesday Week prior @ 12:00\" implies 11 days prior but summary says 4; using summary"
-    ]
+    }
    },
    {
     "name": "Oconee",
@@ -2119,7 +2138,10 @@ export default [
      "publicationDay": "Wednesday",
      "deadline": "tuesday Week of @ 12:00 (1 day prior @ 12pm)",
      "lateDeadline": "tuesday Week of @ 12:00 (1 day prior @ 12pm)"
-    }
+    },
+    "warnings": [
+     "Clay, Quitman and Randolph share the Cuthbert Southern Tribune but carry three different schedules"
+    ]
    },
    {
     "name": "Rabun",
@@ -2153,7 +2175,10 @@ export default [
      "publicationDay": "Wednesday",
      "deadline": "monday Week of @ 5:00 (2 days prior @ 5pm)",
      "lateDeadline": "monday Week of @ 5:00 (2 days prior @ 5pm)"
-    }
+    },
+    "warnings": [
+     "Clay, Quitman and Randolph share the Cuthbert Southern Tribune but carry three different schedules"
+    ]
    },
    {
     "name": "Richmond",
@@ -2210,7 +2235,10 @@ export default [
      "publicationDay": "Wednesday",
      "deadline": "monday Week of @ 5:00 (2 days prior @ 5pm)",
      "lateDeadline": "monday Week of @ 5:00 (2 days prior @ 5pm)"
-    }
+    },
+    "warnings": [
+     "Schley, Stewart and Webster share the Stewart Webster Journal, but Schley is recorded as Wednesday and the others Thursday"
+    ]
    },
    {
     "name": "Screven",
@@ -2295,7 +2323,10 @@ export default [
      "publicationDay": "Thursday",
      "deadline": "monday Week of @ 5:00 (3 days prior @ 5pm)",
      "lateDeadline": "monday Week of @ 5:00 (3 days prior @ 5pm)"
-    }
+    },
+    "warnings": [
+     "Schley, Stewart and Webster share the Stewart Webster Journal, but Schley is recorded as Wednesday and the others Thursday"
+    ]
    },
    {
     "name": "Sumter",
@@ -2363,7 +2394,10 @@ export default [
      "publicationDay": "Thursday",
      "deadline": "tuesday Week of @ 12:00 (2 days prior @ 12pm)",
      "lateDeadline": "tuesday Week of @ 12:00 (2 days prior @ 12pm)"
-    }
+    },
+    "warnings": [
+     "Long and Tattnall are served by the same paper (Journal Sentinel, Reidsville) but are recorded with different publication days"
+    ]
    },
    {
     "name": "Taylor",
@@ -2576,7 +2610,7 @@ export default [
     ],
     "deadlines": {
      "Thursday": {
-      "daysPrior": 8,
+      "daysPrior": 6,
       "time": "10am"
      }
     },
@@ -2586,8 +2620,8 @@ export default [
      "lateDeadline": "friday Week prior @ 10:00 (8 days prior @ 10am)"
     },
     "warnings": [
-     "prose \"friday Week prior @ 10:00\" implies 6 days prior but summary says 8; using summary",
-     "prose \"friday Week prior @ 10:00\" implies 6 days prior but summary says 8; using summary"
+     "summary says 8 days prior (a Wednesday) but the source names friday; using 6 days prior",
+     "summary says 8 days prior (a Wednesday) but the source names friday; using 6 days prior"
     ]
    },
    {
@@ -2707,7 +2741,10 @@ export default [
      "publicationDay": "Thursday",
      "deadline": "monday Week of @ 5:00 (3 days prior @ 5pm)",
      "lateDeadline": "monday Week of @ 5:00 (3 days prior @ 5pm)"
-    }
+    },
+    "warnings": [
+     "Schley, Stewart and Webster share the Stewart Webster Journal, but Schley is recorded as Wednesday and the others Thursday"
+    ]
    },
    {
     "name": "Wheeler",
@@ -2775,7 +2812,10 @@ export default [
      "publicationDay": "Wednesday",
      "deadline": "monday Week of @ 3:30 (2 days prior @ 3:30pm)",
      "lateDeadline": "monday Week of @ 3:30 (2 days prior @ 3:30pm)"
-    }
+    },
+    "warnings": [
+     "Crisp and Wilcox share The Cordele Dispatch but are recorded with different deadline times (11am vs 3:30pm)"
+    ]
    },
    {
     "name": "Wilkes",
@@ -3427,7 +3467,10 @@ export default [
     "source": {
      "publicationDay": "Daily",
      "deadline": "3 days prior @ 4 pm"
-    }
+    },
+    "warnings": [
+     "If this row means The Sun News, it has printed only twice weekly since June 2024, not daily"
+    ]
    },
    {
     "name": "Jasper",
@@ -3721,7 +3764,10 @@ export default [
     "source": {
      "publicationDay": "Daily",
      "deadline": "2 days prior @ 1 pm"
-    }
+    },
+    "warnings": [
+     "If this row means The State, it has printed only Wednesday, Friday and Sunday since April 2024, not daily"
+    ]
    },
    {
     "name": "Saluda",
@@ -3767,7 +3813,10 @@ export default [
     "source": {
      "publicationDay": "Daily",
      "deadline": "2 days prior @ 1 pm"
-    }
+    },
+    "warnings": [
+     "If this row means The State, it has printed only Wednesday, Friday and Sunday since April 2024, not daily"
+    ]
    },
    {
     "name": "Spartanburg",
@@ -3882,7 +3931,10 @@ export default [
     "source": {
      "publicationDay": "Daily",
      "deadline": "3 days prior @ 2 pm"
-    }
+    },
+    "warnings": [
+     "If this row means The Herald (Rock Hill), it has printed only Wednesday, Friday and Sunday since July 2024, not daily"
+    ]
    }
   ]
  }
