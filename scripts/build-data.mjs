@@ -1,0 +1,160 @@
+// Converts data/*.csv into data.js (the file the web app loads).
+// Run:  node scripts/build-data.mjs
+// Prints a warning for every row whose prose description disagrees with its
+// "(N days prior @ time)" summary, so data problems surface at build time.
+
+import { readFileSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const warnings = [];
+let rowWarnings = [];
+const warn = (msg) => { warnings.push(msg); rowWarnings.push(msg.replace(/^(GA|SC) [^:]+: /, '')); };
+
+const dayIndex = (name) => {
+  const i = DAYS.findIndex((d) => d.toLowerCase().startsWith(name.toLowerCase().slice(0, 2)) && d.toLowerCase().startsWith(name.toLowerCase()));
+  if (i < 0) throw new Error(`Unknown day: ${name}`);
+  return i;
+};
+
+// "4:30pm", "12 pm", "5:00" -> "4:30pm" | "12pm" | "5:00" (unknown meridiem left as-is)
+function normalizeTime(raw) {
+  const m = raw.trim().toLowerCase().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/);
+  if (!m) throw new Error(`Bad time: ${raw}`);
+  const [, h, min, mer] = m;
+  return `${Number(h)}${min && min !== '00' ? ':' + min : ''}${mer ?? ''}`;
+}
+
+// Days from publication day back to the named weekday. "week of" means the
+// named day falls in the same calendar week as publication (before it);
+// "week prior" means it falls the week before.
+function daysBackToWeekday(pubDay, targetDay, weekPrior) {
+  let n = dayIndex(pubDay) - dayIndex(targetDay);
+  if (weekPrior) n += 7; else if (n <= 0) n += 7;
+  return n;
+}
+
+function readRows(file) {
+  return readFileSync(join(root, 'data', file), 'utf8')
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((l) => l.split('|').map((c) => c.trim()));
+}
+
+const titleCase = (s) => s.toLowerCase().replace(/(^|[\s-])\S/g, (c) => c.toUpperCase()).replace(/\bMc(\w)/g, (_, c) => 'Mc' + c.toUpperCase());
+
+// ---------- Georgia ----------
+// "friday Week prior @ 4:00 (5 days prior @ 4pm)"
+function parseGeorgiaDeadline(raw, pubDay, county, label) {
+  const paren = raw.match(/\((\d+)\s*days?\s*prior\s*@\s*([^)]+)\)/i);
+  const prose = raw.match(/^(\w+)\s+week\s+(prior|of)\s*@\s*([\d:]+)/i);
+  let result;
+  if (paren) result = { daysPrior: Number(paren[1]), time: normalizeTime(paren[2]) };
+  if (prose) {
+    const fromProse = daysBackToWeekday(pubDay, prose[1], prose[2].toLowerCase() === 'prior');
+    if (!result) {
+      // No summary; infer time meridiem: 1-7 => pm, 8-11 => am, 12 => pm.
+      const t = normalizeTime(prose[3]);
+      const h = Number(t.split(':')[0]);
+      result = { daysPrior: fromProse, time: t + (h >= 8 && h <= 11 ? 'am' : 'pm') };
+      warn(`GA ${county} ${label}: no "(N days prior)" summary, derived ${fromProse} days prior @ ${result.time} from "${raw}"`);
+    } else if (fromProse !== result.daysPrior) {
+      warn(`GA ${county} ${label}: prose "${prose[0]}" implies ${fromProse} days prior but summary says ${result.daysPrior}; using summary`);
+    } else {
+      const proseHour = Number(prose[3].split(':')[0]);
+      const sumHour = Number(result.time.split(/[:apm]/)[0]);
+      if (proseHour !== sumHour) warn(`GA ${county} ${label}: prose time ${prose[3]} disagrees with summary time ${result.time}; using summary`);
+    }
+  }
+  if (!result) throw new Error(`GA ${county} ${label}: cannot parse "${raw}"`);
+  return result;
+}
+
+function buildGeorgia() {
+  const rows = readRows('Georgia.csv').slice(1); // header
+  return rows.map(([county, pubDay, deadline, late]) => {
+    const name = titleCase(county);
+    rowWarnings = [];
+    const d = parseGeorgiaDeadline(deadline, pubDay, name, 'deadline');
+    const l = parseGeorgiaDeadline(late, pubDay, name, 'late deadline');
+    if (l.daysPrior > d.daysPrior) warn(`GA ${name}: late deadline (${l.daysPrior} days prior) is earlier than the regular deadline (${d.daysPrior} days prior)`);
+    const entry = {
+      name,
+      publicationDays: [pubDay],
+      deadlines: { [pubDay]: d },
+      source: { publicationDay: pubDay, deadline, lateDeadline: late },
+    };
+    if (l.daysPrior !== d.daysPrior || l.time !== d.time) entry.lateDeadlines = { [pubDay]: l };
+    if (rowWarnings.length) entry.warnings = [...rowWarnings];
+    return entry;
+  });
+}
+
+// ---------- South Carolina ----------
+// "2 days prior @ 5pm"
+// "Tuesday-Friday: 2 days prior @ 12pm / Saturday-Monday: Thursday @ 4pm"
+// "Wednesday: 5 days prior @ 5 pm / Friday: 3 days prior @ 5 pm"
+function parseRule(rule, pubDay) {
+  let m = rule.match(/(\d+)\s*days?\s*prior\s*@\s*(.+)$/i);
+  if (m) return { daysPrior: Number(m[1]), time: normalizeTime(m[2]) };
+  m = rule.match(/^(\w+)\s*@\s*(.+)$/);
+  if (m) return { daysPrior: daysBackToWeekday(pubDay, m[1], false), time: normalizeTime(m[2]) };
+  throw new Error(`Cannot parse rule "${rule}"`);
+}
+
+function expandDayRange(spec) {
+  const m = spec.match(/^(\w+)(?:-(\w+))?$/);
+  if (!m) throw new Error(`Bad day spec "${spec}"`);
+  const start = dayIndex(m[1]);
+  if (!m[2]) return [DAYS[start]];
+  const out = [];
+  for (let i = start; ; i = (i + 1) % 7) {
+    out.push(DAYS[i]);
+    if (i === dayIndex(m[2])) break;
+  }
+  return out;
+}
+
+function buildSouthCarolina() {
+  return readRows('South Carolina.csv').map(([county, pubDays, deadline]) => {
+    const name = titleCase(county);
+    const publicationDays = pubDays.toLowerCase() === 'daily'
+      ? [...DAYS]
+      : pubDays.split(',').map((d) => DAYS[dayIndex(d.trim())]);
+    const deadlines = {};
+    const parts = deadline.split('/').map((p) => p.trim());
+    for (const part of parts) {
+      const scoped = part.match(/^([\w-]+):\s*(.+)$/);
+      const days = scoped ? expandDayRange(scoped[1]) : publicationDays;
+      const rule = scoped ? scoped[2] : part;
+      for (const day of days) {
+        if (!publicationDays.includes(day)) continue;
+        deadlines[day] = parseRule(rule, day);
+      }
+    }
+    for (const day of publicationDays) {
+      if (!deadlines[day]) throw new Error(`SC ${name}: no deadline for ${day}`);
+    }
+    return { name, publicationDays, deadlines, source: { publicationDay: pubDays, deadline } };
+  });
+}
+
+const data = [
+  { name: 'Georgia', counties: buildGeorgia() },
+  { name: 'South Carolina', counties: buildSouthCarolina() },
+];
+
+const header = `// GENERATED by scripts/build-data.mjs from data/*.csv — do not edit by hand.
+// Source data compiled April 2022. See data/VERIFICATION.md for what has been checked since.
+`;
+writeFileSync(join(root, 'data.js'), `${header}export const DATA_COMPILED = '2022-04';\nexport default ${JSON.stringify(data, null, 1)};\n`);
+
+const total = data.reduce((n, s) => n + s.counties.length, 0);
+console.log(`Wrote data.js: ${data.map((s) => `${s.name} ${s.counties.length}`).join(', ')} (${total} counties)`);
+if (warnings.length) {
+  console.log(`\n${warnings.length} data warning(s):`);
+  for (const w of warnings) console.log(' - ' + w);
+}

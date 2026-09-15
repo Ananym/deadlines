@@ -1,70 +1,47 @@
-# Getting Started with Create React App
+# Publication Deadline Calculator
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Given a court deadline (the date a legal notice must have been published by) and a set of counties, this tells you when the notice must reach each county's official newspaper. Covers Georgia (159 counties) and South Carolina (46 counties).
 
-## Available Scripts
+**Live:** https://ananym.github.io/deadlines/
 
-In the project directory, you can run:
+## How it works
 
-### `npm start`
+1. Find the last day the paper publishes on or before the court deadline.
+2. Subtract that paper's lead time (e.g. "5 days prior @ 4pm").
+3. If that lands on a weekend or a US federal holiday, move back to the previous business day. A Monday holiday therefore gives a Friday deadline. A deadline the day *after* a holiday is not moved.
+4. Georgia papers that publish a separate "late" deadline get a second line.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Federal holidays use the observed-date rule (Saturday holidays observed Friday, Sunday holidays observed Monday). If a publication date itself is a holiday, the result carries a note to confirm the paper prints that day.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Stack
 
-### `npm test`
+No build step. `index.html` loads [Alpine.js](https://alpinejs.dev) from a CDN as an ES module; everything else is plain files:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+| File | Purpose |
+| --- | --- |
+| `index.html`, `styles.css`, `app.js` | UI |
+| `calc.js`, `holidays.js` | Pure logic, shared with the tests |
+| `data.js` | Generated county data. Do not edit by hand |
+| `data/*.csv` | Source data (pipe-delimited) |
+| `scripts/build-data.mjs` | Regenerates `data.js` from the CSVs and reports inconsistent rows |
+| `scripts/test.mjs` | Tests: `node --test scripts/test.mjs` |
+| `data/VERIFICATION.md` | What has been checked against live sources |
 
-### `npm run build`
+Run locally with any static server, e.g. `python -m http.server` or `npx serve`, then open `index.html`. Opening the file directly won't work because ES modules need HTTP.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Updating the data
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Edit the CSV in `data/`, then:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```
+node scripts/build-data.mjs
+node --test scripts/test.mjs
+```
 
-### `npm run eject`
+Georgia rows look like `COUNTY|Wednesday|friday Week prior @ 4:00 (5 days prior @ 4pm)|<late deadline>`. The parenthetical summary is what the app uses; the prose is cross-checked against it and any disagreement is printed at build time and shown in the app as a "Data caution".
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+South Carolina rows look like `County|Wednesday, Friday|2 days prior @ 12pm`, with `Daily` for every day and `Tuesday-Friday: … / Saturday-Monday: Thursday @ 4pm` for per-day rules.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Deployment
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+GitHub Pages serves the `main` branch root directly. Pushing to `main` deploys. The CI workflow only runs the tests.

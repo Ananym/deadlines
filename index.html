@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="description" content="Work out when a legal notice must reach a county's official newspaper to be published by a court deadline. Georgia and South Carolina." />
+  <title>Publication Deadline Calculator</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232c6e49'/%3E%3Ctext x='16' y='22' font-size='18' text-anchor='middle' fill='%23f6f1e7' font-family='Georgia,serif' font-weight='700'%3EP%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <div id="app" x-data="app" x-cloak>
+    <aside class="controls">
+      <header class="masthead">
+        <p class="kicker">Legal notices · Georgia &amp; South Carolina</p>
+        <h1>Priscilla's Amazing Publication Deadline Calculator</h1>
+      </header>
+
+      <section class="field">
+        <div class="field-label">State</div>
+        <div class="segmented" role="radiogroup" aria-label="State">
+          <template x-for="(state, i) in data" :key="state.name">
+            <button type="button" role="radio" :aria-checked="stateIndex === i" :class="{ active: stateIndex === i }" @click="selectState(i)" x-text="state.name"></button>
+          </template>
+        </div>
+      </section>
+
+      <section class="field">
+        <label class="field-label" for="county-search">Counties
+          <span class="muted" x-text="selected.length ? `· ${selected.length} selected` : ''"></span>
+        </label>
+        <div class="chips" x-show="selected.length">
+          <template x-for="name in selected" :key="state.name + ':' + name">
+            <button type="button" class="chip" @click="toggle(name)" :aria-label="`Remove ${name}`">
+              <span x-text="name"></span><span aria-hidden="true">×</span>
+            </button>
+          </template>
+        </div>
+        <input id="county-search" type="search" placeholder="Type to filter…" x-model="query" autocomplete="off" @keydown.enter.prevent="pickFirst()" />
+        <div class="county-list" role="listbox" aria-multiselectable="true">
+          <template x-for="c in filteredCounties" :key="state.name + ':' + c.name">
+            <label class="county-option" :class="{ checked: isSelected(c.name) }">
+              <input type="checkbox" :checked="isSelected(c.name)" @change="toggle(c.name)" />
+              <span class="county-name" x-text="c.name"></span>
+              <span class="county-days" x-text="dayShort(c)"></span>
+            </label>
+          </template>
+          <p class="muted small" x-show="filteredCounties.length === 0">No counties match.</p>
+        </div>
+        <div class="row-actions">
+          <button type="button" class="link" @click="selectAllFiltered()" x-show="query && filteredCounties.length">Select all matching</button>
+          <button type="button" class="link" @click="clearSelection()" x-show="selected.length">Clear</button>
+        </div>
+      </section>
+
+      <section class="field">
+        <label class="field-label" for="court-date">Court deadline
+          <span class="muted">· notice must be published by</span>
+        </label>
+        <div class="date-row">
+          <input id="court-date" type="date" x-model="courtDate" />
+          <button type="button" class="link" @click="setToday()">Today</button>
+        </div>
+      </section>
+
+      <footer class="fineprint">
+        <p>Deadlines that land on a weekend or US federal holiday move back to the previous business day, so a Monday holiday means a Friday deadline.</p>
+        <p>Newspaper data compiled April 2022 (<span x-text="countyCount"></span> counties). See <a href="data/VERIFICATION.md">what has been verified</a> and <a href="https://github.com/Ananym/deadlines">the source</a>. Always confirm with the paper for anything that matters.</p>
+      </footer>
+    </aside>
+
+    <main class="results">
+      <div class="empty" x-show="!results.length">
+        <template x-if="!selected.length">
+          <p>Pick one or more counties to begin.</p>
+        </template>
+        <template x-if="selected.length && !courtDate">
+          <p>Now choose the court deadline: the date the notice must have appeared in print.</p>
+        </template>
+      </div>
+
+      <template x-if="results.length">
+        <div>
+          <p class="results-heading">
+            Submission deadlines for a notice that must be published by
+            <strong x-text="fmtLong(court)"></strong>, soonest first.
+          </p>
+          <ol class="cards">
+            <template x-for="r in results" :key="state.name + ':' + r.county.name">
+              <li class="card" :class="{ urgent: r.daysLeft <= 1, past: r.daysLeft < 0 }">
+                <div class="card-head">
+                  <h2 x-text="r.county.name"></h2>
+                  <span class="countdown" x-text="countdown(r.daysLeft)"></span>
+                </div>
+                <div class="deadline">
+                  <span class="deadline-label">Submit by</span>
+                  <span class="deadline-date" x-text="fmt(r.calc.deadline.date)"></span>
+                  <span class="deadline-time" x-text="r.calc.deadline.time"></span>
+                </div>
+                <p class="adjustment" x-show="r.calc.deadline.adjusted">
+                  Moved from <span x-text="fmt(r.calc.deadline.nominal)"></span>
+                  (<span x-text="r.calc.deadline.adjustments[0].reason"></span>).
+                </p>
+                <div class="deadline late" x-show="r.calc.lateDeadline">
+                  <span class="deadline-label">Late deadline</span>
+                  <span class="deadline-date" x-text="r.calc.lateDeadline && fmt(r.calc.lateDeadline.date)"></span>
+                  <span class="deadline-time" x-text="r.calc.lateDeadline && r.calc.lateDeadline.time"></span>
+                  <span class="adjustment inline" x-show="r.calc.lateDeadline && r.calc.lateDeadline.adjusted">
+                    moved from <span x-text="r.calc.lateDeadline && fmt(r.calc.lateDeadline.nominal)"></span>
+                  </span>
+                </div>
+                <dl class="meta">
+                  <div><dt>Publishes</dt><dd x-text="fmt(r.calc.publicationDate)"></dd></div>
+                  <div><dt>Rule</dt><dd><span x-text="r.calc.pubDay"></span> paper, <span x-text="r.calc.rule.daysPrior"></span> days prior @ <span x-text="r.calc.rule.time"></span></dd></div>
+                </dl>
+                <ul class="notes" x-show="r.calc.notes.length">
+                  <template x-for="(n, i) in r.calc.notes" :key="i">
+                    <li :class="{ caution: n.startsWith('Data caution') }" x-text="n"></li>
+                  </template>
+                </ul>
+              </li>
+            </template>
+          </ol>
+        </div>
+      </template>
+    </main>
+  </div>
+  <noscript>This calculator needs JavaScript.</noscript>
+</body>
+</html>
