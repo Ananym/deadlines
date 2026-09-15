@@ -25,6 +25,7 @@ No build step. `index.html` loads [Alpine.js](https://alpinejs.dev) from a CDN a
 | `data/*.csv` | Source data (pipe-delimited) |
 | `scripts/build-data.mjs` | Regenerates `data.js` from the CSVs and reports inconsistent rows |
 | `scripts/test.mjs` | Tests: `node --test scripts/test.mjs` |
+| `scripts/cases.mjs` | Input-to-output cases for the calculation. Add a line to add a test |
 | `data/review-notes.json` | Per-county cautions shown in the app, distilled from the verification report |
 | `data/VERIFICATION.md` | What has been checked against live sources (Sept 2026) |
 

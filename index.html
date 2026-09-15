@@ -15,114 +15,95 @@
 </head>
 <body>
   <div id="app" x-data="app" x-cloak>
-    <aside class="controls">
-      <header class="masthead">
-        <p class="kicker">Legal notices · Georgia &amp; South Carolina</p>
-        <h1>Priscilla's Amazing Publication Deadline Calculator</h1>
-      </header>
+    <header class="masthead">
+      <h1>Priscilla's Amazing Publication Deadline Calculator</h1>
+      <a class="source-link" href="https://github.com/Ananym/deadlines">Source</a>
+    </header>
 
-      <section class="field">
-        <div class="field-label">State</div>
+    <section class="controls">
+      <div class="control">
+        <div class="control-label">State</div>
         <div class="segmented" role="radiogroup" aria-label="State">
           <template x-for="(state, i) in data" :key="state.name">
             <button type="button" role="radio" :aria-checked="stateIndex === i" :class="{ active: stateIndex === i }" @click="selectState(i)" x-text="state.name"></button>
           </template>
         </div>
-      </section>
+      </div>
 
-      <section class="field">
-        <label class="field-label" for="county-search">Counties
-          <span class="muted" x-text="selected.length ? `· ${selected.length} selected` : ''"></span>
-        </label>
-        <div class="chips" x-show="selected.length">
-          <template x-for="name in selected" :key="state.name + ':' + name">
-            <button type="button" class="chip" @click="toggle(name)" :aria-label="`Remove ${name}`">
-              <span x-text="name"></span><span aria-hidden="true">×</span>
-            </button>
-          </template>
+      <div class="control control-counties" @click.outside="open = false" @keydown.escape="open = false">
+        <label class="control-label" for="county-search">Counties</label>
+        <div class="picker" :class="{ open }">
+          <div class="picker-field" @click="$refs.search.focus()">
+            <template x-for="name in selected" :key="state.name + ':' + name">
+              <button type="button" class="chip" @click.stop="toggle(name)" :aria-label="`Remove ${name}`">
+                <span x-text="name"></span><span aria-hidden="true">×</span>
+              </button>
+            </template>
+            <input id="county-search" x-ref="search" type="text" :placeholder="selected.length ? 'Add another…' : 'Search counties…'"
+              x-model="query" autocomplete="off" @focus="open = true" @keydown.enter.prevent="pickFirst()" @keydown.backspace="if (!query) popLast()" />
+          </div>
+          <div class="picker-menu" x-show="open" role="listbox" aria-multiselectable="true">
+            <template x-for="c in filteredCounties" :key="state.name + ':' + c.name">
+              <label class="county-option" :class="{ checked: isSelected(c.name) }">
+                <input type="checkbox" :checked="isSelected(c.name)" @change="toggle(c.name)" />
+                <span class="county-name" x-text="c.name"></span>
+                <span class="county-days" x-text="dayShort(c)"></span>
+              </label>
+            </template>
+            <p class="muted small" x-show="filteredCounties.length === 0">No counties match.</p>
+          </div>
         </div>
-        <input id="county-search" type="search" placeholder="Type to filter…" x-model="query" autocomplete="off" @keydown.enter.prevent="pickFirst()" />
-        <div class="county-list" role="listbox" aria-multiselectable="true">
-          <template x-for="c in filteredCounties" :key="state.name + ':' + c.name">
-            <label class="county-option" :class="{ checked: isSelected(c.name) }">
-              <input type="checkbox" :checked="isSelected(c.name)" @change="toggle(c.name)" />
-              <span class="county-name" x-text="c.name"></span>
-              <span class="county-days" x-text="dayShort(c)"></span>
-            </label>
-          </template>
-          <p class="muted small" x-show="filteredCounties.length === 0">No counties match.</p>
-        </div>
-        <div class="row-actions">
-          <button type="button" class="link" @click="selectAllFiltered()" x-show="query && filteredCounties.length">Select all matching</button>
-          <button type="button" class="link" @click="clearSelection()" x-show="selected.length">Clear</button>
-        </div>
-      </section>
+      </div>
 
-      <section class="field">
-        <label class="field-label" for="court-date">Court deadline
-          <span class="muted">· notice must be published by</span>
-        </label>
-        <div class="date-row">
-          <input id="court-date" type="date" x-model="courtDate" />
-          <button type="button" class="link" @click="setToday()">Today</button>
-        </div>
-      </section>
-
-      <footer class="fineprint">
-        <p>Deadlines that land on a weekend or US federal holiday move back to the previous business day, so a Monday holiday means a Friday deadline.</p>
-        <p>Newspaper data compiled April 2022 (<span x-text="countyCount"></span> counties). See <a href="https://github.com/Ananym/deadlines/blob/main/data/VERIFICATION.md">what has been verified</a> and <a href="https://github.com/Ananym/deadlines">the source</a>. Always confirm with the paper for anything that matters.</p>
-      </footer>
-    </aside>
+      <div class="control control-date">
+        <label class="control-label" for="court-date">Must be published by</label>
+        <input id="court-date" type="date" x-model="courtDate" />
+      </div>
+    </section>
 
     <main class="results">
-      <div class="empty" x-show="!results.length">
-        <template x-if="!selected.length">
-          <p>Pick one or more counties to begin.</p>
-        </template>
-        <template x-if="selected.length && !courtDate">
-          <p>Now choose the court deadline: the date the notice must have appeared in print.</p>
-        </template>
-      </div>
+      <p class="empty" x-show="!results.length" x-text="!selected.length ? 'Pick one or more counties to begin.' : (courtDate ? '' : 'Choose the date the notice must have appeared in print.')"></p>
 
       <template x-if="results.length">
         <div>
           <p class="results-heading">
-            Submission deadlines for a notice that must be published by
-            <strong x-text="fmtLong(court)"></strong>, soonest first.
+            Send the notice to each paper by the date shown, for publication on or before
+            <strong x-text="fmtLong(court)"></strong>.
+            <span class="holiday-summary" x-show="holidayCount">
+              <span class="pill holiday">Bank holiday</span>
+              <span x-text="holidayCount === 1 ? '1 deadline moved earlier.' : `${holidayCount} deadlines moved earlier.`"></span>
+            </span>
           </p>
           <ol class="cards">
             <template x-for="r in results" :key="state.name + ':' + r.county.name">
-              <li class="card" :class="{ urgent: r.daysLeft <= 1, past: r.daysLeft < 0 }">
+              <li class="card" :class="{ past: r.daysLeft < 0, holiday: r.holiday }">
                 <div class="card-head">
                   <h2 x-text="r.county.name"></h2>
-                  <span class="countdown" x-text="countdown(r.daysLeft)"></span>
+                  <span class="pill holiday" x-show="r.holiday" x-text="r.holiday"></span>
+                  <span class="pill weekend" x-show="!r.holiday && r.calc.deadline.adjusted">Weekend</span>
+                  <span class="pill past" x-show="r.daysLeft < 0">Past</span>
                 </div>
                 <div class="deadline">
-                  <span class="deadline-label">Submit by</span>
                   <span class="deadline-date" x-text="fmt(r.calc.deadline.date)"></span>
                   <span class="deadline-time" x-text="r.calc.deadline.time"></span>
                 </div>
-                <p class="adjustment" x-show="r.calc.deadline.adjusted">
-                  Moved from <span x-text="fmt(r.calc.deadline.nominal)"></span>
-                  (<span x-text="r.calc.deadline.adjustments[0]?.reason"></span>).
+                <p class="adjust" x-show="r.calc.deadline.adjusted">
+                  <span x-text="fmt(r.calc.deadline.nominal)"></span> is <span x-text="adjustReason(r.calc.deadline)"></span>, so the deadline moves back to <span x-text="dayName(r.calc.deadline.date)"></span>.
                 </p>
-                <div class="deadline late" x-show="r.calc.lateDeadline">
-                  <span class="deadline-label">Late deadline</span>
-                  <span class="deadline-date" x-text="r.calc.lateDeadline && fmt(r.calc.lateDeadline.date)"></span>
-                  <span class="deadline-time" x-text="r.calc.lateDeadline && r.calc.lateDeadline.time"></span>
-                  <span class="adjustment inline" x-show="r.calc.lateDeadline && r.calc.lateDeadline.adjusted">
-                    moved from <span x-text="r.calc.lateDeadline && fmt(r.calc.lateDeadline.nominal)"></span>
-                  </span>
-                </div>
-                <dl class="meta">
-                  <div><dt>Publishes</dt><dd x-text="fmt(r.calc.publicationDate)"></dd></div>
-                  <div><dt>Rule</dt><dd><span x-text="r.calc.pubDay"></span> paper, <span x-text="r.calc.rule.daysPrior"></span> days prior @ <span x-text="r.calc.rule.time"></span></dd></div>
-                </dl>
-                <ul class="notes" x-show="r.calc.notes.length">
-                  <template x-for="(n, i) in r.calc.notes" :key="i">
-                    <li :class="{ caution: n.startsWith('Data caution') }" x-text="n"></li>
+                <p class="meta">
+                  Publishes <span x-text="fmt(r.calc.publicationDate)"></span>
+                  · <span x-text="r.calc.rule.daysPrior"></span> days prior
+                  <template x-if="r.calc.lateDeadline">
+                    <span> · late deadline <span x-text="fmt(r.calc.lateDeadline.date)"></span>, <span x-text="r.calc.lateDeadline.time"></span><span x-show="r.calc.lateDeadline.adjusted"> (moved from <span x-text="fmt(r.calc.lateDeadline.nominal)"></span>)</span></span>
                   </template>
-                </ul>
+                </p>
+                <p class="meta caution-text" x-show="pubHolidayNote(r.calc)" x-text="pubHolidayNote(r.calc)"></p>
+                <details class="cautions" x-show="cautions(r.county).length">
+                  <summary x-text="cautions(r.county).length === 1 ? 'Data caution' : `${cautions(r.county).length} data cautions`"></summary>
+                  <ul>
+                    <template x-for="(n, i) in cautions(r.county)" :key="i"><li x-text="n"></li></template>
+                  </ul>
+                </details>
               </li>
             </template>
           </ol>

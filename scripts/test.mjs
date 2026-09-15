@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { federalHolidays, holidayName, isoDate } from '../holidays.js';
 import { calcDeadline, rollBackToBusinessDay, parseLocalDate, publicationDateFor } from '../calc.js';
 import DATA from '../data.js';
+import CASES from './cases.mjs';
 
 const d = parseLocalDate;
 const county = (state, name) => DATA.find((s) => s.name === state).counties.find((c) => c.name === name);
@@ -122,3 +123,24 @@ test('every county in data.js computes for every day of a week', () => {
     }
   }
 });
+
+// ---------- Table-driven cases from scripts/cases.mjs ----------
+const stamp = (dl) => `${isoDate(dl.date)} ${dl.time}`;
+for (const c of CASES) {
+  test(`${c.state}/${c.county} published by ${c.court} -> ${c.deadline}`, () => {
+    const county = DATA.find((s) => s.name === c.state)?.counties.find((x) => x.name === c.county);
+    assert.ok(county, `no county ${c.state}/${c.county}`);
+    const r = calcDeadline(county, d(c.court));
+    assert.ok(r, 'no result');
+    assert.equal(isoDate(r.publicationDate), c.publication, 'publication date');
+    assert.equal(stamp(r.deadline), c.deadline, 'deadline');
+    if ('late' in c) assert.equal(r.lateDeadline ? stamp(r.lateDeadline) : null, c.late, 'late deadline');
+    if ('movedFrom' in c) {
+      assert.equal(r.deadline.adjusted, true, 'expected a rollback');
+      assert.equal(isoDate(r.deadline.nominal), c.movedFrom, 'nominal date');
+      if ('reason' in c) assert.equal(r.deadline.adjustments[0].reason, c.reason, 'reason');
+    } else {
+      assert.equal(r.deadline.adjusted, false, `unexpected rollback from ${isoDate(r.deadline.nominal)} (${r.deadline.adjustments.map((a) => a.reason).join(', ')})`);
+    }
+  });
+}
