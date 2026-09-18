@@ -1,10 +1,4 @@
 {
-  "_comment": "Per-county cautions shown in the app. Georgia rows were confirmed against the November 2026 sale report, so no Georgia cautions remain. South Carolina notes come from data/VERIFICATION.md (Sept 2026). Remove an entry once the CSV row has been confirmed with the paper.",
-  "Georgia": {},
-  "South Carolina": {
-    "Richland": "If this row means The State, it has printed only Wednesday, Friday and Sunday since April 2024, not daily",
-    "Saluda": "If this row means The State, it has printed only Wednesday, Friday and Sunday since April 2024, not daily",
-    "York": "If this row means The Herald (Rock Hill), it has printed only Wednesday, Friday and Sunday since July 2024, not daily",
-    "Horry": "If this row means The Sun News, it has printed only twice weekly since June 2024, not daily"
-  }
+  "_comment": "Per-county cautions shown in the app. Georgia rows were confirmed against the November 2026 sale report, so no Georgia cautions remain. South Carolina is siloed in unused/south-carolina/. Remove an entry once the CSV row has been confirmed with the paper.",
+  "Georgia": {}
 }

@@ -37,14 +37,6 @@ export default [
   { state: 'Georgia', county: 'Effingham', court: '2027-01-20', publication: '2027-01-20', deadline: '2027-01-15 12pm', movedFrom: '2027-01-18', reason: 'Martin Luther King Jr. Day' },
   // Memorial Day 2027.
   { state: 'Georgia', county: 'Sumter', court: '2027-06-02', publication: '2027-06-02', deadline: '2027-05-28 9am', movedFrom: '2027-05-31', reason: 'Memorial Day' },
-  // Daily paper whose nominal deadline is a Saturday -> Friday.
-  { state: 'South Carolina', county: 'Aiken', court: '2026-09-15', publication: '2026-09-15', deadline: '2026-09-11 4pm', movedFrom: '2026-09-12', reason: 'Saturday' },
-  // Per-day rules: Charleston weekend editions use Thursday @ 4pm, weekdays 2 days prior @ 12pm.
-  { state: 'South Carolina', county: 'Charleston', court: '2026-09-13', publication: '2026-09-13', deadline: '2026-09-10 4pm' },
-  { state: 'South Carolina', county: 'Charleston', court: '2026-09-16', publication: '2026-09-16', deadline: '2026-09-14 12pm' },
-  // Two publication days with different lead times.
-  { state: 'South Carolina', county: 'Darlington', court: '2026-09-18', publication: '2026-09-18', deadline: '2026-09-15 5pm' },
-  { state: 'South Carolina', county: 'Darlington', court: '2026-09-17', publication: '2026-09-16', deadline: '2026-09-11 5pm' },
   // Long: Thursday paper, Tuesday of the same week at noon.
   { state: 'Georgia', county: 'Long', court: '2026-09-17', publication: '2026-09-17', deadline: '2026-09-15 12pm' },
 

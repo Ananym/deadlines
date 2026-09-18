@@ -1,0 +1,9 @@
+{
+  "_comment": "South Carolina cautions removed from data/review-notes.json when the state was siloed. Source: data/VERIFICATION.md (Sept 2026).",
+  "South Carolina": {
+    "Richland": "If this row means The State, it has printed only Wednesday, Friday and Sunday since April 2024, not daily",
+    "Saluda": "If this row means The State, it has printed only Wednesday, Friday and Sunday since April 2024, not daily",
+    "York": "If this row means The Herald (Rock Hill), it has printed only Wednesday, Friday and Sunday since July 2024, not daily",
+    "Horry": "If this row means The Sun News, it has printed only twice weekly since June 2024, not daily"
+  }
+}

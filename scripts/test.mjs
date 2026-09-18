@@ -48,8 +48,6 @@ test('publicationDateFor picks the last publication day on or before the court d
   const appling = county('Georgia', 'Appling'); // Wednesday
   assert.equal(isoDate(publicationDateFor(appling, d('2026-09-15'))), '2026-09-09'); // Tue -> prior Wed
   assert.equal(isoDate(publicationDateFor(appling, d('2026-09-16'))), '2026-09-16'); // Wed -> same day
-  const aiken = county('South Carolina', 'Aiken'); // Daily
-  assert.equal(isoDate(publicationDateFor(aiken, d('2026-09-15'))), '2026-09-15');
 });
 
 test('Georgia weekly paper: 5 days prior from Wednesday is Friday before', () => {
@@ -85,29 +83,13 @@ test('Tuesday deadline after a Monday holiday is untouched', () => {
   assert.equal(r.deadline.adjusted, false);
 });
 
-test('Daily paper with a weekend nominal deadline rolls back to Friday', () => {
-  // Aiken: daily, 3 days prior. Court date Tue 2026-09-15 -> nominal Sat 09-12 -> Fri 09-11
-  const r = calcDeadline(county('South Carolina', 'Aiken'), d('2026-09-15'));
-  assert.equal(isoDate(r.deadline.nominal), '2026-09-12');
-  assert.equal(isoDate(r.deadline.date), '2026-09-11');
-});
-
-test('Per-day rules: Charleston weekend editions use Thursday @ 4pm', () => {
-  const ch = county('South Carolina', 'Charleston');
-  const sun = calcDeadline(ch, d('2026-09-13'));
-  assert.equal(isoDate(sun.deadline.date), '2026-09-10');
-  assert.equal(sun.deadline.time, '4pm');
-  const wed = calcDeadline(ch, d('2026-09-16'));
-  assert.equal(isoDate(wed.deadline.date), '2026-09-14');
-  assert.equal(wed.deadline.time, '12pm');
-});
-
 test('Publication on a holiday produces a note', () => {
   // Newton publishes Saturday; Jul 4 2026 is a Saturday but observed Friday, so the Saturday itself is not flagged.
   const r = calcDeadline(county('Georgia', 'Newton'), d('2026-07-04'));
   assert.equal(isoDate(r.publicationDate), '2026-07-04');
   assert.ok(!r.notes.some((n) => n.startsWith('Publication date falls')));
-  const c = calcDeadline(county('South Carolina', 'Aiken'), d('2026-12-25'));
+  // Cobb publishes Friday; Christmas Day 2026 is a Friday.
+  const c = calcDeadline(county('Georgia', 'Cobb'), d('2026-12-25'));
   assert.ok(c.notes.some((n) => n.includes('Christmas Day')));
 });
 

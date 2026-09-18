@@ -1,12 +1,12 @@
 # Publication Deadline Calculator
 
-Given a court deadline (the date a legal notice must have been published by) and a set of counties, this tells you when the notice must reach each county's official newspaper. Covers Georgia (159 counties, confirmed against the November 2026 sale report) and South Carolina (46 counties, 2022 data only partly verified).
+Given a court deadline (the date a legal notice must have been published by) and a set of counties, this tells you when the notice must reach each county's official newspaper. Covers Georgia (159 counties, confirmed against the November 2026 sale report). South Carolina is parked in `unused/south-carolina/` until its 2022 data can be verified.
 
 **Live:** https://ananym.github.io/deadlines/
 
 ## How it works
 
-**Publish by date** (both states):
+**Publish by date**:
 
 1. Find the last day the paper publishes on or before the date given.
 2. Subtract that paper's lead time (e.g. "5 days prior @ 4pm").
@@ -31,6 +31,7 @@ No build step. `index.html` loads [Alpine.js](https://alpinejs.dev) from a CDN a
 | `scripts/cases.mjs` | Input-to-output cases for the calculation. Add a line to add a test |
 | `data/review-notes.json` | Per-county cautions shown in the app, distilled from the verification report |
 | `data/VERIFICATION.md` | What has been checked against live sources (Sept 2026) |
+| `unused/south-carolina/` | South Carolina data and code, siloed until verified |
 
 Run locally with any static server, e.g. `python -m http.server` or `npx serve`, then open `index.html`. Opening the file directly won't work because ES modules need HTTP.
 
@@ -45,7 +46,11 @@ node --test scripts/test.mjs
 
 Georgia rows look like `COUNTY|Wednesday|friday Week prior @ 4:00 (5 days prior @ 4pm)` with an optional fourth column for a late deadline. The parenthetical summary is what the app uses, except that the weekday named in the prose wins when the summary's day count lands on a different weekday. Every disagreement is printed at build time and shown in the app as a "Data caution". Add or remove entries in `data/review-notes.json` to show or clear cautions for a county.
 
-South Carolina rows look like `County|Wednesday, Friday|2 days prior @ 12pm`, with `Daily` for every day and `Tuesday-Friday: … / Saturday-Monday: Thursday @ 4pm` for per-day rules.
+South Carolina's CSV, parser, tests and cautions live in `unused/south-carolina/` and are not loaded by anything; its README explains how to bring the state back.
+
+## Debugging
+
+Add `?debug=holiday` to the URL to load Georgia with a few counties selected and the nearest upcoming publish-by date whose deadline is pushed earlier by a bank holiday. Nothing from that setup is saved to local storage.
 
 ## Deployment
 

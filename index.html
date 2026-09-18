@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="light dark" />
-  <meta name="description" content="Work out when a legal notice must reach a county's official newspaper to be published by a court deadline. Georgia and South Carolina." />
+  <meta name="description" content="Work out when a legal notice must reach a county's official newspaper to be published by a court deadline. Georgia." />
   <title>Publication Deadline Calculator</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232c6e49'/%3E%3Ctext x='16' y='22' font-size='18' text-anchor='middle' fill='%23f6f1e7' font-family='Georgia,serif' font-weight='700'%3EP%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -21,7 +21,7 @@
     </header>
 
     <section class="controls">
-      <div class="control">
+      <div class="control" x-show="data.length > 1">
         <div class="control-label">State</div>
         <div class="segmented" role="radiogroup" aria-label="State">
           <template x-for="(state, i) in data" :key="state.name">
