@@ -1,3 +1,5 @@
+> **Superseded.** `data/Georgia.csv` was rebuilt from the office's November 2026 sale report on 2026-09-16, which resolved every Georgia finding below (Fulton, Bibb, Muscogee, the arithmetic errors). South Carolina was dropped from the repo. This file is kept for its primary-source links and as the record of the independent checks.
+
 # Reference data verification — Georgia & South Carolina legal-notice deadlines
 
 Verification date: **2026-09-15**. Data under review was compiled around April 2022.

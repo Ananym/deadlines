@@ -71,16 +71,19 @@ h1 {
 
 /* ---------- Controls ---------- */
 .controls {
-  display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  display: flex;
+  flex-wrap: wrap;
   gap: 20px;
   align-items: start;
   padding: 20px 0 24px;
 }
 @media (max-width: 720px) {
-  .controls { grid-template-columns: 1fr; gap: 16px; }
+  .controls { gap: 16px; }
+  .controls .control { flex: 1 1 100%; }
 }
-.control { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.control { display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 0 0 auto; }
+.control-counties { flex: 1 1 320px; }
+.mode-help { flex-basis: 100%; margin: -4px 0 0; max-width: 78ch; font-size: 13.5px; line-height: 1.5; color: var(--ink-2); }
 .control-label { font-size: 12.5px; font-weight: 600; color: var(--ink-2); letter-spacing: 0.02em; }
 .muted { color: var(--ink-3); }
 .small { font-size: 13px; margin: 8px; }

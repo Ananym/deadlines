@@ -97,8 +97,6 @@ export function calcDeadline(county, courtDate) {
   if (!rule) return null;
 
   const deadline = buildDeadline(publicationDate, rule);
-  const lateRule = county.lateDeadlines?.[pubDay];
-  const lateDeadline = lateRule ? buildDeadline(publicationDate, lateRule) : null;
 
   const notes = [];
   const pubHoliday = holidayName(publicationDate);
@@ -109,5 +107,5 @@ export function calcDeadline(county, courtDate) {
   }
   for (const w of county.warnings ?? []) notes.push(`Data caution: ${w}. Confirm with the paper.`);
 
-  return { publicationDate, pubDay, rule, deadline, lateDeadline, notes };
+  return { publicationDate, pubDay, rule, deadline, notes };
 }

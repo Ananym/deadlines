@@ -8,7 +8,6 @@
 //                   for the first insertion
 //   publication     expected publication date (first insertion in sale mode)
 //   deadline        expected submission date and time, "YYYY-MM-DD time"
-//   late            (optional) expected late deadline, same format, or null for "none"
 //   movedFrom       (optional) nominal date before the weekend/holiday rollback
 //   reason          (optional) first reason for the rollback, e.g. "Labor Day" or "Saturday"
 //
@@ -18,7 +17,7 @@
 
 export default [
   // Plain weekly paper, no adjustment.
-  { state: 'Georgia', county: 'Appling', court: '2026-09-16', publication: '2026-09-16', deadline: '2026-09-11 4pm', late: null },
+  { state: 'Georgia', county: 'Appling', court: '2026-09-16', publication: '2026-09-16', deadline: '2026-09-11 4pm' },
   // Court date is not a publication day: use the last issue before it.
   { state: 'Georgia', county: 'Appling', court: '2026-09-15', publication: '2026-09-09', deadline: '2026-09-04 4pm' },
   // Fulton: Wednesday paper, Monday of the week before at noon; that Monday is Labor Day -> Friday.

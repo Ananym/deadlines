@@ -1,4 +1,4 @@
 {
-  "_comment": "Per-county cautions shown in the app. Georgia rows were confirmed against the November 2026 sale report, so no Georgia cautions remain. South Carolina is siloed in unused/south-carolina/. Remove an entry once the CSV row has been confirmed with the paper.",
+  "_comment": "Per-county cautions shown in the app. Georgia rows were confirmed against the November 2026 sale report, so no Georgia cautions remain. Remove an entry once the CSV row has been confirmed with the paper.",
   "Georgia": {}
 }

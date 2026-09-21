@@ -56,15 +56,6 @@ test('Georgia weekly paper: 5 days prior from Wednesday is Friday before', () =>
   assert.equal(isoDate(r.deadline.date), '2026-09-11');
   assert.equal(r.deadline.time, '4pm');
   assert.equal(r.deadline.adjusted, false);
-  assert.equal(r.lateDeadline, null); // same as regular, so omitted
-});
-
-test('late deadline is exposed when a county defines one', () => {
-  const synthetic = { name: 'X', publicationDays: ['Thursday'], deadlines: { Thursday: { daysPrior: 6, time: '12pm' } }, lateDeadlines: { Thursday: { daysPrior: 3, time: '12pm' } } };
-  const r = calcDeadline(synthetic, d('2026-09-17')); // Thursday
-  assert.equal(isoDate(r.deadline.date), '2026-09-11');
-  assert.equal(isoDate(r.lateDeadline.date), '2026-09-14');
-  assert.equal(r.lateDeadline.time, '12pm');
 });
 
 test('Monday deadline on Labor Day rolls back to Friday', () => {
@@ -135,7 +126,6 @@ for (const c of CASES) {
     assert.ok(r, 'no result');
     assert.equal(isoDate(r.publicationDate), c.publication, 'publication date');
     assert.equal(stamp(r.deadline), c.deadline, 'deadline');
-    if ('late' in c) assert.equal(r.lateDeadline ? stamp(r.lateDeadline) : null, c.late, 'late deadline');
     if ('movedFrom' in c) {
       assert.equal(r.deadline.adjusted, true, 'expected a rollback');
       assert.equal(isoDate(r.deadline.nominal), c.movedFrom, 'nominal date');

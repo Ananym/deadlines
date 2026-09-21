@@ -33,8 +33,8 @@
       <div class="control" x-show="saleModeAvailable">
         <div class="control-label">Notice</div>
         <div class="segmented" role="radiogroup" aria-label="Notice type">
-          <button type="button" role="radio" :aria-checked="mode === 'publish'" :class="{ active: mode === 'publish' }" @click="mode = 'publish'">Publish by date</button>
           <button type="button" role="radio" :aria-checked="mode === 'sale'" :class="{ active: mode === 'sale' }" @click="mode = 'sale'">Foreclosure sale</button>
+          <button type="button" role="radio" :aria-checked="mode === 'publish'" :class="{ active: mode === 'publish' }" @click="mode = 'publish'">Publish by date</button>
         </div>
       </div>
 
@@ -71,10 +71,19 @@
           <button type="button" class="link" @click="setNextSale()" x-text="`Next sale: ${fmt(nextSale())}`"></button>
         </p>
       </div>
+
+      <p class="mode-help" x-show="isSale">
+        Georgia foreclosure sales are held on the first Tuesday of the month, and the notice has to appear in the county's legal paper once a week for the four weeks before the sale.
+        Enter the sale date and pick the counties: each card shows the last moment the paper will accept the notice for its first run, and the dates it will run.
+      </p>
+      <p class="mode-help" x-show="!isSale">
+        Enter the date by which a notice must have appeared in print. Each card finds the paper's last issue on or before that date and shows when the paper needs the notice to make it.
+        <span class="caution-text">These are the same county deadlines as the sale schedule, but only foreclosure sale runs have been checked against the office's November 2026 report. For other notice types, confirm with the paper.</span>
+      </p>
     </section>
 
     <main class="results">
-      <p class="empty" x-show="!results.length" x-text="!selected.length ? 'Pick one or more counties to begin.' : (courtDate ? '' : 'Choose the date the notice must have appeared in print.')"></p>
+      <p class="empty" x-show="!results.length" x-text="!selected.length ? 'Pick one or more counties to begin.' : (courtDate ? '' : (isSale ? 'Choose the sale date.' : 'Choose the date the notice must have appeared in print.'))"></p>
 
       <template x-if="results.length">
         <div>
@@ -106,9 +115,6 @@
                   <template x-if="isSale"><span>Runs <span x-text="fmt(r.calc.firstPublication)"></span> to <span x-text="fmt(r.calc.lastPublication)"></span></span></template>
                   <template x-if="!isSale"><span>Publishes <span x-text="fmt(r.calc.publicationDate)"></span></span></template>
                   · <span x-text="r.calc.rule.daysPrior"></span> days prior
-                  <template x-if="r.calc.lateDeadline">
-                    <span> · late deadline <span x-text="fmt(r.calc.lateDeadline.date)"></span>, <span x-text="r.calc.lateDeadline.time"></span><span x-show="r.calc.lateDeadline.adjusted"> (moved from <span x-text="fmt(r.calc.lateDeadline.nominal)"></span>)</span></span>
-                  </template>
                 </p>
                 <p class="meta caution-text" x-show="pubHolidayNote(r.calc)" x-text="pubHolidayNote(r.calc)"></p>
                 <details class="cautions" x-show="cautions(r.county).length">

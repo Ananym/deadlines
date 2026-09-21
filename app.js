@@ -3,7 +3,8 @@ import DATA from './data.js';
 import { calcDeadline, calcSaleDeadline, firstTuesday, parseLocalDate } from './calc.js';
 import { holidayName } from './holidays.js';
 
-const STORAGE_KEY = 'deadlines:v1';
+const STORAGE_KEY = 'deadlines:v2';
+const LEGACY_KEY = 'deadlines:v1'; // v1 saved mode 'publish' by default; v2 defaults to 'sale'
 const DAY_ABBR = { Monday: 'Mon', Tuesday: 'Tue', Wednesday: 'Wed', Thursday: 'Thu', Friday: 'Fri', Saturday: 'Sat', Sunday: 'Sun' };
 const fmtShort = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 const fmtLongF = new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -15,7 +16,12 @@ const todayIso = () => {
 };
 
 function load() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? {}; } catch { return {}; }
+  try {
+    const v2 = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (v2) return v2;
+    const { mode, ...v1 } = JSON.parse(localStorage.getItem(LEGACY_KEY)) ?? {};
+    return v1;
+  } catch { return {}; }
 }
 
 Alpine.data('app', () => ({
@@ -25,7 +31,7 @@ Alpine.data('app', () => ({
   query: '',
   open: false,
   courtDate: '',
-  mode: 'publish', // 'publish' | 'sale' (Georgia foreclosure: 4 weekly runs before a first-Tuesday sale)
+  mode: 'sale', // 'sale' (Georgia foreclosure: 4 weekly runs before a first-Tuesday sale) | 'publish' (legacy, unverified data)
   debug: false, // set by ?debug=…; nothing is saved while true
 
   init() {
@@ -34,7 +40,7 @@ Alpine.data('app', () => ({
     if (idx >= 0) this.stateIndex = idx;
     this.selectedByState = saved.selectedByState ?? {};
     this.courtDate = saved.courtDate ?? '';
-    if (saved.mode === 'sale') this.mode = 'sale';
+    if (saved.mode === 'publish') this.mode = 'publish';
     const debug = new URLSearchParams(location.search).get('debug');
     if (debug === 'holiday') this.setupHolidayDebug();
     this.$watch('stateIndex', () => { if (!this.saleModeAvailable) this.mode = 'publish'; this.save(); });
