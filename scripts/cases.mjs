@@ -6,6 +6,8 @@
 //   sale            a Georgia foreclosure sale date (first Tuesday): the notice
 //                   runs weekly for the 4 weeks before it and the deadline is
 //                   for the first insertion
+//   send            or: when the notice is sent, "YYYY-MM-DD HH:MM" (24h); finds
+//                   the earliest issue whose deadline has not passed
 //   publication     expected publication date (first insertion in sale mode)
 //   deadline        expected submission date and time, "YYYY-MM-DD time"
 //   movedFrom       (optional) nominal date before the weekend/holiday rollback
@@ -54,4 +56,16 @@ export default [
   { state: 'Georgia', county: 'Fulton', sale: '2026-12-01', publication: '2026-11-04', deadline: '2026-10-26 12pm' },
   // January 2027 sale (5 Jan): a Saturday paper's first run is 12 Dec, deadline Fri 4 Dec.
   { state: 'Georgia', county: 'Spalding', sale: '2027-01-05', publication: '2026-12-12', deadline: '2026-12-04 4pm' },
+
+  // ---- Earliest issue for a notice sent at a given moment ----
+  // Appling: Wednesday paper, Friday 4pm cutoff. One minute either side of it.
+  { state: 'Georgia', county: 'Appling', send: '2026-10-16 15:59', publication: '2026-10-21', deadline: '2026-10-16 4pm' },
+  { state: 'Georgia', county: 'Appling', send: '2026-10-16 16:00', publication: '2026-10-21', deadline: '2026-10-16 4pm' },
+  { state: 'Georgia', county: 'Appling', send: '2026-10-16 16:01', publication: '2026-10-28', deadline: '2026-10-23 4pm' },
+  // Fulton on Columbus Day: the 21 Oct issue's Monday deadline rolled back to Fri 9 Oct, so it's gone already.
+  { state: 'Georgia', county: 'Fulton', send: '2026-10-12 09:00', publication: '2026-10-28', deadline: '2026-10-19 12pm' },
+  // Quitman: Wednesday paper, Tuesday noon cutoff, the day before.
+  { state: 'Georgia', county: 'Quitman', send: '2026-10-13 11:00', publication: '2026-10-14', deadline: '2026-10-13 12pm' },
+  // Thanksgiving week: Bleckley's Thu 26 Nov cutoff moves to Wed 25 Nov, which is missed late on the 25th.
+  { state: 'Georgia', county: 'Bleckley', send: '2026-11-25 17:00', publication: '2026-12-10', deadline: '2026-12-03 4pm' },
 ];

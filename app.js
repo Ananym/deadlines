@@ -1,7 +1,7 @@
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/module.esm.js';
 import DATA from './data.js';
-import { calcDeadline, calcSaleDeadline, firstTuesday, parseLocalDate } from './calc.js';
-import { holidayName } from './holidays.js';
+import { calcDeadline, calcEarliestPublication, calcSaleDeadline, firstTuesday, parseLocalDate } from './calc.js';
+import { holidayName, isoDate } from './holidays.js';
 
 const STORAGE_KEY = 'deadlines:v2';
 const LEGACY_KEY = 'deadlines:v1'; // v1 saved mode 'publish' by default; v2 defaults to 'sale'
@@ -9,11 +9,17 @@ const DAY_ABBR = { Monday: 'Mon', Tuesday: 'Tue', Wednesday: 'Wed', Thursday: 'T
 const fmtShort = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 const fmtLongF = new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 const fmtDay = new Intl.DateTimeFormat('en-GB', { weekday: 'long' });
+const fmtClock = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' });
 
-const todayIso = () => {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
+// Deadlines are Georgia wall-clock times, so "now" is read in US Eastern time
+// and held as a plain local Date like every other date in the app.
+const easternParts = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'America/New_York', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', hourCycle: 'h23',
+});
+function easternNow() {
+  const p = Object.fromEntries(easternParts.formatToParts(new Date()).map((x) => [x.type, x.value]));
+  return new Date(+p.year, p.month - 1, +p.day, +p.hour, +p.minute);
+}
 
 function load() {
   try {
@@ -32,6 +38,9 @@ Alpine.data('app', () => ({
   open: false,
   courtDate: '',
   mode: 'sale', // 'sale' (Georgia foreclosure: 4 weekly runs before a first-Tuesday sale) | 'publish' (legacy, unverified data)
+  direction: 'target', // publish mode only: 'target' (publish-by date -> send by) | 'send' (send date -> earliest issue)
+  sendDate: '', // '' means right now; not saved, so a reload always starts from now
+  now: easternNow(), // ticks every 30s so cutoffs that pass while the page is open drop out
   debug: false, // set by ?debug=…; nothing is saved while true
 
   init() {
@@ -41,10 +50,13 @@ Alpine.data('app', () => ({
     this.selectedByState = saved.selectedByState ?? {};
     this.courtDate = saved.courtDate ?? '';
     if (saved.mode === 'publish') this.mode = 'publish';
+    if (saved.direction === 'send') this.direction = 'send';
     const debug = new URLSearchParams(location.search).get('debug');
     if (debug === 'holiday') this.setupHolidayDebug();
     this.$watch('stateIndex', () => { if (!this.saleModeAvailable) this.mode = 'publish'; this.save(); });
     this.$watch('mode', () => this.save());
+    this.$watch('direction', () => this.save());
+    setInterval(() => { this.now = easternNow(); }, 30000);
     this.$watch('selectedByState', () => this.save());
     this.$watch('courtDate', () => this.save());
   },
@@ -52,7 +64,7 @@ Alpine.data('app', () => ({
     if (this.debug) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        state: this.state.name, selectedByState: this.selectedByState, courtDate: this.courtDate, mode: this.mode,
+        state: this.state.name, selectedByState: this.selectedByState, courtDate: this.courtDate, mode: this.mode, direction: this.direction,
       }));
     } catch { /* private mode etc. */ }
   },
@@ -69,14 +81,24 @@ Alpine.data('app', () => ({
   get court() { return this.courtDate ? parseLocalDate(this.courtDate) : null; },
   get saleModeAvailable() { return this.state.name === 'Georgia'; },
   get isSale() { return this.mode === 'sale' && this.saleModeAvailable; },
+  get isEarliest() { return !this.isSale && this.direction === 'send'; },
+  get today() { return new Date(this.now.getFullYear(), this.now.getMonth(), this.now.getDate()); },
+  get sendIsNow() { return !this.sendDate || this.sendDate === isoDate(this.today); },
+  // A future (or past) send date counts from the start of that day.
+  get sendAt() { return this.sendIsNow ? this.now : parseLocalDate(this.sendDate); },
+  calcFor(county) {
+    if (this.isEarliest) return calcEarliestPublication(county, this.sendAt);
+    return this.isSale ? calcSaleDeadline(county, this.court) : calcDeadline(county, this.court);
+  },
   get results() {
-    if (!this.court || !this.selected.length) return [];
-    const today = parseLocalDate(todayIso());
+    if (!(this.isEarliest || this.court) || !this.selected.length) return [];
+    const today = this.today;
+    const byDate = this.isEarliest ? (r) => r.calc.publicationDate : (r) => r.calc.deadline.date;
     return this.selected
       .map((name) => this.state.counties.find((c) => c.name === name))
       .filter(Boolean)
       .map((county) => {
-        const calc = this.isSale ? calcSaleDeadline(county, this.court) : calcDeadline(county, this.court);
+        const calc = this.calcFor(county);
         if (!calc) return null;
         const daysLeft = Math.round((calc.deadline.date - today) / 86400000);
         // Name of the bank holiday that pushed this deadline earlier, if any.
@@ -84,7 +106,7 @@ Alpine.data('app', () => ({
         return { county, calc, daysLeft, holiday };
       })
       .filter(Boolean)
-      .sort((a, b) => a.calc.deadline.date - b.calc.deadline.date || a.county.name.localeCompare(b.county.name));
+      .sort((a, b) => byDate(a) - byDate(b) || a.county.name.localeCompare(b.county.name));
   },
   get holidayCount() { return this.results.filter((r) => r.holiday).length; },
 
@@ -94,12 +116,13 @@ Alpine.data('app', () => ({
     this.debug = true;
     this.stateIndex = Math.max(0, DATA.findIndex((s) => s.name === 'Georgia'));
     this.mode = 'publish';
+    this.direction = 'target';
     const wanted = ['Fulton', 'Effingham', 'Bacon', 'Quitman', 'Bleckley'];
     this.selected = wanted.filter((n) => this.state.counties.some((c) => c.name === n));
-    const d = parseLocalDate(todayIso());
+    const d = new Date(this.today);
     for (let i = 0; i < 400; i++) {
       d.setDate(d.getDate() + 1);
-      this.courtDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      this.courtDate = isoDate(d);
       if (this.results.some((r) => r.holiday && r.daysLeft >= 0)) break;
     }
   },
@@ -117,15 +140,15 @@ Alpine.data('app', () => ({
   popLast() { if (this.selected.length) this.selected = this.selected.slice(0, -1); },
   isFirstTuesday(d) { return firstTuesday(d.getFullYear(), d.getMonth()).getTime() === d.getTime(); },
   nextSale() {
-    const today = parseLocalDate(todayIso());
+    const today = this.today;
     let t = firstTuesday(today.getFullYear(), today.getMonth());
     if (t < today) t = firstTuesday(today.getFullYear(), today.getMonth() + 1);
     return t;
   },
   setNextSale() {
-    const t = this.nextSale();
-    this.courtDate = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+    this.courtDate = isoDate(this.nextSale());
   },
+  isoDate,
 
   dayShort(county) {
     return county.publicationDays.length === 7 ? 'Daily' : county.publicationDays.map((d) => DAY_ABBR[d]).join(' ');
@@ -133,6 +156,8 @@ Alpine.data('app', () => ({
   fmt: (d) => fmtShort.format(d),
   fmtLong: (d) => fmtLongF.format(d),
   dayName: (d) => fmtDay.format(d),
+  clock: (d) => fmtClock.format(d).toLowerCase().replace(' ', ''), // "3:42pm", matching the data's style
+  isToday(d) { return d.getTime() === this.today.getTime(); },
   // "Labor Day" | "a Saturday" | "Christmas Day, and the weekend before it"
   adjustReason(deadline) {
     if (!deadline.adjustments.length) return '';

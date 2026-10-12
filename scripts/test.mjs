@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { federalHolidays, holidayName, isoDate } from '../holidays.js';
-import { calcDeadline, calcSaleDeadline, firstTuesday, rollBackToBusinessDay, parseLocalDate, publicationDateFor } from '../calc.js';
+import { calcDeadline, calcEarliestPublication, calcSaleDeadline, deadlineMoment, firstTuesday, parseTime, rollBackToBusinessDay, parseLocalDate, publicationDateFor } from '../calc.js';
 import DATA from '../data.js';
 import CASES from './cases.mjs';
 
@@ -115,14 +115,42 @@ test('sale mode: every Georgia county starts its 4-week run inside the 28 days b
   }
 });
 
+test('parseTime', () => {
+  assert.equal(parseTime('9am'), 9 * 60);
+  assert.equal(parseTime('12pm'), 12 * 60);
+  assert.equal(parseTime('3:30pm'), 15 * 60 + 30);
+  assert.equal(parseTime('12am'), 0);
+  assert.equal(parseTime('noon'), null);
+});
+
+test('earliest issue: every county answers, and the deadline is never before the send moment', () => {
+  const sendAt = new Date(2026, 9, 12, 13, 30);
+  for (const c of DATA[0].counties) {
+    const r = calcEarliestPublication(c, sendAt);
+    assert.ok(r, c.name);
+    assert.ok(r.publicationDate > sendAt, c.name);
+    assert.ok(deadlineMoment(r.deadline) >= sendAt, c.name);
+    // The issue a week earlier, if the paper prints weekly, must already be closed.
+    const before = calcDeadline(c, new Date(r.publicationDate.getTime() - 7 * 86400000));
+    if (before.publicationDate > sendAt) assert.ok(deadlineMoment(before.deadline) < sendAt, c.name);
+  }
+});
+
+test('earliest issue: reports the issue whose cutoff passed earlier the same day', () => {
+  const r = calcEarliestPublication(county('Georgia', 'Bleckley'), new Date(2026, 10, 25, 17, 0));
+  assert.equal(isoDate(r.missed.publicationDate), '2026-12-03');
+  assert.equal(calcEarliestPublication(county('Georgia', 'Bleckley'), new Date(2026, 10, 25, 15, 0)).missed, null);
+});
+
 // ---------- Table-driven cases from scripts/cases.mjs ----------
 const stamp = (dl) => `${isoDate(dl.date)} ${dl.time}`;
 for (const c of CASES) {
-  const label = c.sale ? `sale on ${c.sale}` : `published by ${c.court}`;
+  const label = c.sale ? `sale on ${c.sale}` : c.send ? `sent ${c.send}` : `published by ${c.court}`;
   test(`${c.state}/${c.county} ${label} -> ${c.deadline}`, () => {
     const county = DATA.find((s) => s.name === c.state)?.counties.find((x) => x.name === c.county);
     assert.ok(county, `no county ${c.state}/${c.county}`);
-    const r = c.sale ? calcSaleDeadline(county, d(c.sale)) : calcDeadline(county, d(c.court));
+    const sendAt = () => { const [day, hm] = c.send.split(' '); const t = d(day); t.setHours(...hm.split(':').map(Number)); return t; };
+    const r = c.sale ? calcSaleDeadline(county, d(c.sale)) : c.send ? calcEarliestPublication(county, sendAt()) : calcDeadline(county, d(c.court));
     assert.ok(r, 'no result');
     assert.equal(isoDate(r.publicationDate), c.publication, 'publication date');
     assert.equal(stamp(r.deadline), c.deadline, 'deadline');

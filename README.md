@@ -14,6 +14,8 @@ Given a court deadline (the date a legal notice must have been published by) and
 2. Subtract that paper's lead time (e.g. "5 days prior @ 4pm").
 3. If that lands on a weekend or a US federal holiday, move back to the previous business day. A Monday holiday therefore gives a Friday deadline. A deadline the day *after* a holiday is not moved.
 
+Publish by date also has a **Send on → earliest issue** direction for "if I send it today, when's the earliest it can run?". Pick the send date (it defaults to now) and each card shows the paper's first issue whose deadline, computed with the rules above, hasn't passed yet. When the send date is today, the deadline's time of day is compared with the current US Eastern time, so an issue whose 12pm cutoff has already gone is skipped and the card says so. A later send date counts from the start of that day.
+
 Federal holidays use the observed-date rule (Saturday holidays observed Friday, Sunday holidays observed Monday). If a publication date itself is a holiday, the result carries a note to confirm the paper prints that day.
 
 ## Stack

@@ -38,6 +38,14 @@
         </div>
       </div>
 
+      <div class="control" x-show="!isSale">
+        <div class="control-label">Direction</div>
+        <div class="segmented" role="radiogroup" aria-label="Direction">
+          <button type="button" role="radio" :aria-checked="direction === 'target'" :class="{ active: direction === 'target' }" @click="direction = 'target'">Publish by → send by</button>
+          <button type="button" role="radio" :aria-checked="direction === 'send'" :class="{ active: direction === 'send' }" @click="direction = 'send'">Send on → earliest issue</button>
+        </div>
+      </div>
+
       <div class="control control-counties" @click.outside="open = false" @keydown.escape="open = false">
         <label class="control-label" for="county-search">Counties</label>
         <div class="picker" :class="{ open }">
@@ -63,7 +71,7 @@
         </div>
       </div>
 
-      <div class="control control-date">
+      <div class="control control-date" x-show="!isEarliest">
         <label class="control-label" for="court-date" x-text="isSale ? 'Sale date' : 'Must be published by'"></label>
         <input id="court-date" type="date" x-model="courtDate" />
         <p class="hint" x-show="isSale">
@@ -72,24 +80,35 @@
         </p>
       </div>
 
+      <div class="control control-date" x-show="isEarliest">
+        <label class="control-label" for="send-date">Sending on</label>
+        <input id="send-date" type="date" :value="sendDate || isoDate(today)" @input="sendDate = $event.target.value" />
+        <p class="hint">
+          <template x-if="sendIsNow"><span x-text="`Today, now: ${clock(now)} Eastern`"></span></template>
+          <template x-if="!sendIsNow"><button type="button" class="link" @click="sendDate = ''">Back to now</button></template>
+        </p>
+      </div>
+
       <p class="mode-help" x-show="isSale">
         Georgia foreclosure sales are held on the first Tuesday of the month, and the notice has to appear in the county's legal paper once a week for the four weeks before the sale.
         Enter the sale date and pick the counties: each card shows the last moment the paper will accept the notice for its first run, and the dates it will run.
       </p>
       <p class="mode-help" x-show="!isSale">
-        Enter the date by which a notice must have appeared in print. Each card finds the paper's last issue on or before that date and shows when the paper needs the notice to make it.
+        <span x-show="!isEarliest">Enter the date by which a notice must have appeared in print. Each card finds the paper's last issue on or before that date and shows when the paper needs the notice to make it.</span>
+        <span x-show="isEarliest">Enter when you'll send the notice. Each card shows the paper's first issue whose deadline you can still make. For today the current Eastern time is used, so an issue whose cutoff has already passed today is skipped.</span>
         <span class="caution-text">These are the same county deadlines as the sale schedule, but only foreclosure sale runs have been checked against the office's November 2026 report. For other notice types, confirm with the paper.</span>
       </p>
     </section>
 
     <main class="results">
-      <p class="empty" x-show="!results.length" x-text="!selected.length ? 'Pick one or more counties to begin.' : (courtDate ? '' : (isSale ? 'Choose the sale date.' : 'Choose the date the notice must have appeared in print.'))"></p>
+      <p class="empty" x-show="!results.length" x-text="!selected.length ? 'Pick one or more counties to begin.' : (courtDate || isEarliest ? '' : (isSale ? 'Choose the sale date.' : 'Choose the date the notice must have appeared in print.'))"></p>
 
       <template x-if="results.length">
         <div>
           <p class="results-heading">
             <template x-if="isSale"><span>Send the notice to each paper by the date shown so it runs weekly for the four weeks before the sale on <strong x-text="fmtLong(court)"></strong>.</span></template>
-            <template x-if="!isSale"><span>Send the notice to each paper by the date shown, for publication on or before <strong x-text="fmtLong(court)"></strong>.</span></template>
+            <template x-if="isEarliest"><span>The earliest issue each paper can run a notice sent <strong x-text="sendIsNow ? `now (${clock(now)} Eastern)` : `on ${fmtLong(sendAt)}`"></strong>.</span></template>
+            <template x-if="!isSale && !isEarliest"><span>Send the notice to each paper by the date shown, for publication on or before <strong x-text="fmtLong(court)"></strong>.</span></template>
             <span class="holiday-summary" x-show="holidayCount">
               <span class="pill holiday">Bank holiday</span>
               <span x-text="holidayCount === 1 ? '1 deadline moved earlier.' : `${holidayCount} deadlines moved earlier.`"></span>
@@ -104,16 +123,26 @@
                   <span class="pill weekend" x-show="!r.holiday && r.calc.deadline.adjusted">Weekend</span>
                   <span class="pill past" x-show="r.daysLeft < 0">Past</span>
                 </div>
-                <div class="deadline">
+                <div class="deadline" x-show="!isEarliest">
                   <span class="deadline-date" x-text="fmt(r.calc.deadline.date)"></span>
                   <span class="deadline-time" x-text="r.calc.deadline.time"></span>
                 </div>
+                <template x-if="isEarliest">
+                  <div>
+                    <div class="deadline"><span class="deadline-date" x-text="fmt(r.calc.publicationDate)"></span></div>
+                    <p class="send-by">Send by <strong x-text="isToday(r.calc.deadline.date) ? 'today' : fmt(r.calc.deadline.date)"></strong>, <span x-text="r.calc.deadline.time"></span></p>
+                  </div>
+                </template>
                 <p class="adjust" x-show="r.calc.deadline.adjusted">
                   <span x-text="fmt(r.calc.deadline.nominal)"></span> is <span x-text="adjustReason(r.calc.deadline)"></span>, so the deadline moves back to <span x-text="dayName(r.calc.deadline.date)"></span>.
                 </p>
+                <p class="meta" x-show="isEarliest && r.calc.missed">
+                  The <span x-text="r.calc.missed && fmt(r.calc.missed.publicationDate)"></span> issue closed at <span x-text="r.calc.missed?.deadline.time"></span> <span x-text="sendIsNow ? 'today' : 'that day'"></span>.
+                </p>
                 <p class="meta">
                   <template x-if="isSale"><span>Runs <span x-text="fmt(r.calc.firstPublication)"></span> to <span x-text="fmt(r.calc.lastPublication)"></span></span></template>
-                  <template x-if="!isSale"><span>Publishes <span x-text="fmt(r.calc.publicationDate)"></span></span></template>
+                  <template x-if="isEarliest"><span x-text="dayShort(r.county)"></span></template>
+                  <template x-if="!isSale && !isEarliest"><span>Publishes <span x-text="fmt(r.calc.publicationDate)"></span></span></template>
                   · <span x-text="r.calc.rule.daysPrior"></span> days prior
                 </p>
                 <p class="meta caution-text" x-show="pubHolidayNote(r.calc)" x-text="pubHolidayNote(r.calc)"></p>

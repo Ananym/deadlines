@@ -79,6 +79,42 @@ export function calcSaleDeadline(county, saleDate) {
   return { ...base, firstPublication: first, lastPublication: addDays(first, 21), saleDate };
 }
 
+/** "4pm" | "3:30pm" | "9am" -> minutes after midnight, or null if unparseable. */
+export function parseTime(s) {
+  const m = /^(\d{1,2})(?::(\d{2}))?(am|pm)$/.exec(s ?? '');
+  if (!m) return null;
+  return ((Number(m[1]) % 12) + (m[3] === 'pm' ? 12 : 0)) * 60 + Number(m[2] ?? 0);
+}
+
+/** A deadline's date and time of day as one Date (end of day if the time is unreadable). */
+export function deadlineMoment(deadline) {
+  const d = new Date(deadline.date);
+  d.setMinutes(parseTime(deadline.time) ?? 24 * 60 - 1);
+  return d;
+}
+
+/**
+ * Reverse lookup: the paper's earliest issue that a notice sent at `sendAt`
+ * (a local Date including time of day) can still make. Walks forward issue by
+ * issue, computing each deadline exactly as calcDeadline does, and returns the
+ * first whose deadline is at or after sendAt. Same shape as calcDeadline plus
+ * `missed`: the issue skipped just before it when that issue's deadline fell
+ * on the send day (today's cutoff has passed). Null if nothing within 8 weeks.
+ */
+export function calcEarliestPublication(county, sendAt) {
+  const sendDay = new Date(sendAt.getFullYear(), sendAt.getMonth(), sendAt.getDate());
+  let missed = null;
+  for (let i = 0; i < 56; i++) {
+    const pub = addDays(sendDay, i);
+    if (!county.publicationDays.includes(DAY_NAMES[pub.getDay()])) continue;
+    const calc = calcDeadline(county, pub);
+    if (!calc) return null;
+    if (deadlineMoment(calc.deadline) >= sendAt) return { ...calc, missed };
+    missed = calc.deadline.date.getTime() === sendDay.getTime() ? calc : null;
+  }
+  return null;
+}
+
 /** First Tuesday of a month (Georgia foreclosure sale day). month is 0-11. */
 export function firstTuesday(year, month) {
   const d = new Date(year, month, 1);
