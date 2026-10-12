@@ -42,7 +42,7 @@
         <div class="control-label">Direction</div>
         <div class="segmented" role="radiogroup" aria-label="Direction">
           <button type="button" role="radio" :aria-checked="direction === 'target'" :class="{ active: direction === 'target' }" @click="direction = 'target'">Publish by → send by</button>
-          <button type="button" role="radio" :aria-checked="direction === 'send'" :class="{ active: direction === 'send' }" @click="direction = 'send'">Send on → earliest issue</button>
+          <button type="button" role="radio" :aria-checked="direction === 'send'" :class="{ active: direction === 'send' }" @click="direction = 'send'">Send on → earliest pub</button>
         </div>
       </div>
 
@@ -107,7 +107,7 @@
         <div>
           <p class="results-heading">
             <template x-if="isSale"><span>Send the notice to each paper by the date shown so it runs weekly for the four weeks before the sale on <strong x-text="fmtLong(court)"></strong>.</span></template>
-            <template x-if="isEarliest"><span>The earliest issue each paper can run a notice sent <strong x-text="sendIsNow ? `now (${clock(now)} Eastern)` : `on ${fmtLong(sendAt)}`"></strong>.</span></template>
+            <template x-if="isEarliest"><span>The earliest pub each paper can run a notice sent <strong x-text="sendIsNow ? `now (${clock(now)} Eastern)` : `on ${fmtLong(sendAt)}`"></strong>.</span></template>
             <template x-if="!isSale && !isEarliest"><span>Send the notice to each paper by the date shown, for publication on or before <strong x-text="fmtLong(court)"></strong>.</span></template>
             <span class="holiday-summary" x-show="holidayCount">
               <span class="pill holiday">Bank holiday</span>
